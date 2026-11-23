@@ -348,7 +348,7 @@
             <button type="button" class="btn ghost small" id="nextWeek">Next →</button>
           </div>
         </div>
-        <p class="plan-note">Breakfast, lunch and dinner for every day, plus a snack or dessert on six days. Lunch, dinner and snacks never repeat within the week; there are six breakfasts for seven days, so one breakfast comes back once — never on back-to-back days. You can add a snack to the remaining day any time. Tap any meal for the full recipe, use <strong>Swap</strong> to trade one meal, or <strong>Shuffle day</strong> to redo a whole day. Your grocery list updates itself from whatever is on the plan.</p>
+        <p class="plan-note">Breakfast, lunch and dinner for every day, plus a snack or dessert on six days. Lunch, dinner and snacks never repeat within the week; there are six breakfasts for seven days, so one breakfast comes back once — never on back-to-back days. You can add a snack to the remaining day any time — since all six snack recipes are already in the week, the one added will be a repeat of another day's snack. Tap any meal for the full recipe, use <strong>Swap</strong> to trade one meal, or <strong>Shuffle day</strong> to redo a whole day. Your grocery list updates itself from whatever is on the plan.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
           <button type="button" class="btn" id="regenPlan">↻ Generate a fresh plan</button>
           <button type="button" class="btn ghost" id="goGrocery">See the grocery list →</button>
@@ -671,6 +671,13 @@
       if (candidates.length){
         var rand = mulberry32(hashSeed(weekKey+"|swap|"+dayIdx+"|"+mealIdx+"|"+Date.now()));
         plan.days[dayIdx][mealIdx] = candidates[Math.floor(rand()*candidates.length)].id;
+      } else if (!current) {
+        /* Empty slot (e.g. shuffling a day with no snack) and the whole
+           pool is already on the week: fill it with a repeat rather than
+           trading, which would just move the empty slot to another day. */
+        var allPool = pool(meal);
+        if (!allPool.length) return;
+        plan.days[dayIdx][mealIdx] = allPool[Math.floor(Math.random()*allPool.length)].id;
       } else {
         /* whole pool already on the week: trade with another day instead */
         var others = [];
@@ -780,8 +787,23 @@
         var plan = getPlan(key);
         var used = usedInWeek(plan.days, 3, d);
         var cands = pool("snack").filter(function(r){ return !used[r.id]; });
-        if (cands.length){ plan.days[d][3] = cands[0].id; saveJSON(LS.plans, plans); }
-        else toast("Every snack recipe is already in this week's plan");
+        var repeated = false;
+        if (!cands.length){
+          /* The snack pool (6) is smaller than the week (7), so once every
+             snack recipe is already planned there is nothing unused left
+             to add. Reuse one instead of dead-ending: the tap must always
+             add a snack. */
+          cands = pool("snack");
+          repeated = true;
+        }
+        if (cands.length){
+          var pick = cands[Math.floor(Math.random()*cands.length)];
+          plan.days[d][3] = pick.id; saveJSON(LS.plans, plans);
+          toast(repeated
+            ? "Snack added — every snack recipe is already in this week's plan, so this one repeats another day"
+            : "Snack added — grocery list updated");
+        }
+        else toast("No snack recipes available to add");
         renderPlan(); renderGrocerySoon();
       }
       else if (t.hasAttribute("data-removesnack")){
