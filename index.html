@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6493457352745466" crossorigin="anonymous"></script>
+<meta name="google-adsense-account" content="ca-pub-6493457352745466">
+    <script>
+      /* Restore the saved theme before first paint (default: light). */
+      (function(){ try { if (localStorage.getItem("dfe.theme.v1") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch(e){} })();
+    </script>
+    <link rel="icon" href="data:," />
+    <title>Diabetes Friendly Eats — Meal Plan App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --green:#1e4d2b; --green-deep:#14351d; --green-soft:#2c6b3e;
+        --cream:#faf5ea; --cream-card:#fffdf7; --cream-dim:#f1e9d7;
+        --gold:#c19a2e; --gold-soft:#e7cf8f;
+        --ink:#22301f; --ink-soft:#55624f; --line:#ddd2ba;
+        --chip-bg:#eef3e4; --chip-ink:#2c5a36;
+        --carbs-bg:#1e4d2b; --carbs-ink:#fdf6dd;
+        --btn-bg:#1e4d2b;
+        --danger:#a33b2e;
+        --shadow:0 2px 10px rgba(30,60,30,.10);
+        --radius:14px;
+      }
+      /* Dark theme — applied when the header toggle sets data-theme="dark"
+         on <html>; the choice is saved on-device and restored on open. */
+      :root[data-theme="dark"]{
+        --green:#7fc48d; --green-deep:#0a1409; --green-soft:#9fd3a9;
+        --cream:#0f150d; --cream-card:#1a2415; --cream-dim:#232f1e;
+        --gold:#d9b64a; --gold-soft:#e7cf8f;
+        --ink:#f0ead6; --ink-soft:#c0c9ae; --line:#3a4633;
+        --chip-bg:#26351f; --chip-ink:#bfe0c4;
+        --carbs-bg:#2c6b3e; --carbs-ink:#fdf6dd;
+        --btn-bg:#2c6b3e;
+        --shadow:0 2px 10px rgba(0,0,0,.45);
+      }
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth; scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom)); scroll-padding-top:96px}
+      body{
+        margin:0; background:var(--cream); color:var(--ink);
+        font-family:"Public Sans",system-ui,-apple-system,sans-serif;
+        font-size:16px; line-height:1.5;
+        padding-bottom:calc(76px + env(safe-area-inset-bottom));
+      }
+      h1,h2,h3,.serif{font-family:"Lora",Georgia,serif}
+      button{font:inherit; cursor:pointer}
+      button, [role="button"], select, summary, input:not([type="checkbox"],[type="radio"]){min-height:2.25rem}
+      a{color:var(--green-soft)}
+      :focus-visible{outline:3px solid var(--gold); outline-offset:2px; border-radius:6px}
+
+      /* ---------- Header ---------- */
+      header.app-head{
+        background:var(--green-deep); color:#f7f1de;
+        padding:14px 16px 12px; position:sticky; top:0; z-index:30;
+        box-shadow:0 2px 12px rgba(0,0,0,.25);
+      }
+      .head-row{display:flex; align-items:center; gap:12px; max-width:1060px; margin:0 auto}
+      .head-row img{width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--gold); background:#fff; flex:none}
+      .head-row .wordmark{line-height:1.15}
+      .head-row .wordmark .name{font-family:"Lora",Georgia,serif; font-weight:700; font-size:1.22rem; letter-spacing:.01em}
+      .head-row .wordmark .tag{font-size:.8rem; color:var(--gold-soft); font-weight:600; letter-spacing:.06em; text-transform:uppercase}
+      .head-actions{margin-left:auto; display:flex; align-items:center; gap:8px; flex:none}
+      .theme-toggle{
+        width:2.5rem; height:2.5rem; border-radius:50%; flex:none;
+        background:transparent; border:1px solid rgba(247,241,222,.4); color:var(--gold-soft);
+        font-size:1.15rem; line-height:1; display:inline-flex; align-items:center; justify-content:center;
+      }
+      .theme-toggle:active{transform:translateY(1px)}
+      .head-favs{background:transparent; border:1px solid rgba(247,241,222,.4); color:#f7f1de; border-radius:999px; padding:6px 14px; font-weight:600; font-size:.9rem; min-height:2.5rem; white-space:nowrap; flex:none}
+      .head-favs[aria-pressed="true"]{background:var(--gold); border-color:var(--gold); color:#231a04}
+
+      main{max-width:1060px; margin:0 auto; padding:18px 14px 30px}
+      .view{display:none}
+      .view.active{display:block}
+
+      /* ---------- Buttons ---------- */
+      .btn{
+        display:inline-flex; align-items:center; justify-content:center; gap:8px;
+        border-radius:999px; border:1px solid var(--btn-bg); padding:9px 18px;
+        background:var(--btn-bg); color:#fdf8e7; font-weight:700; font-size:.95rem;
+        min-height:2.75rem; text-decoration:none;
+      }
+      .btn:active{transform:translateY(1px)}
+      .btn.ghost{background:transparent; color:var(--green); border-color:var(--line)}
+      .btn.small{padding:5px 13px; min-height:2.25rem; font-size:.85rem}
+      .btn.gold{background:var(--gold); border-color:var(--gold); color:#241b02}
+
+      /* ---------- Plan ---------- */
+      .plan-top{display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; justify-content:space-between; margin-bottom:6px}
+      .plan-top h2{margin:0; font-size:1.55rem; color:var(--green)}
+      .week-nav{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+      .week-label{font-weight:700; color:var(--ink-soft); font-size:.95rem}
+      .plan-note{color:var(--ink-soft); font-size:.92rem; margin:4px 0 16px; max-width:62ch}
+      .day-card{
+        background:var(--cream-card); border:1px solid var(--line); border-radius:var(--radius);
+        box-shadow:var(--shadow); margin-bottom:14px; overflow:hidden;
+      }
+      .day-head{
+        display:flex; align-items:center; justify-content:space-between; gap:10px;
+        padding:10px 14px; background:var(--cream-dim); border-bottom:1px solid var(--line);
+      }
+      .day-head .dname{font-family:"Lora",Georgia,serif; font-weight:700; font-size:1.08rem}
+      .day-head .ddate{color:var(--ink-soft); font-size:.85rem; font-weight:600}
+      .day-head .today-flag{background:var(--gold); color:#241b02; font-size:.72rem; font-weight:800; padding:2px 8px; border-radius:999px; letter-spacing:.04em}
+      .meal-row{
+        display:flex; align-items:center; gap:10px; padding:10px 14px;
+        border-bottom:1px dashed var(--line);
+      }
+      .meal-row:last-child{border-bottom:none}
+      .meal-kind{
+        flex:none; width:74px; font-size:.72rem; font-weight:800; letter-spacing:.07em;
+        text-transform:uppercase; color:var(--green-soft);
+      }
+      .meal-main{flex:1; min-width:0; text-align:left; background:none; border:none; padding:4px 0; color:inherit}
+      .meal-main .mtitle{display:block; font-weight:600; font-size:.98rem; line-height:1.3}
+      .meal-main .mcarbs{display:inline-block; margin-top:3px; background:var(--carbs-bg); color:var(--carbs-ink); font-size:.74rem; font-weight:700; padding:1px 8px; border-radius:999px}
+      .meal-actions{display:flex; gap:6px; flex:none}
+      .icon-btn{
+        width:2.5rem; height:2.5rem; border-radius:50%; border:1px solid var(--line);
+        background:var(--cream-card); color:var(--green); display:inline-flex; align-items:center; justify-content:center;
+        font-size:1.05rem; line-height:1;
+      }
+      .icon-btn.faved{color:#c0392b; border-color:#c0392b}
+      .swap-btn{
+        border:1px solid var(--line); background:var(--cream-card); color:var(--green);
+        border-radius:999px; padding:5px 12px; font-size:.82rem; font-weight:700; min-height:2.5rem;
+      }
+      .add-snack{
+        width:100%; background:none; border:none; color:var(--green-soft); font-weight:700;
+        font-size:.9rem; padding:8px 14px; text-align:left; min-height:2.75rem;
+      }
+      .plan-carbs-total{
+        background:var(--chip-bg); color:var(--chip-ink); border-radius:var(--radius);
+        padding:12px 16px; font-weight:600; margin:4px 0 18px; font-size:.95rem;
+      }
+
+      /* ---------- Recipe grid ---------- */
+      .toolbar{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
+      .toolbar input[type="search"]{
+        flex:1 1 200px; padding:10px 14px; border-radius:999px; border:1px solid var(--line);
+        background:var(--cream-card); color:var(--ink); font:inherit; min-height:2.75rem;
+      }
+      .chip{
+        border:1px solid var(--line); background:var(--cream-card); color:var(--ink);
+        border-radius:999px; padding:7px 15px; font-weight:600; font-size:.9rem; min-height:2.5rem;
+      }
+      .chip[aria-pressed="true"]{background:var(--btn-bg); border-color:var(--btn-bg); color:#fdf8e7}
+      .grid{display:grid; grid-template-columns:1fr; gap:14px}
+      @media (min-width:640px){ .grid{grid-template-columns:1fr 1fr} }
+      @media (min-width:960px){ .grid{grid-template-columns:1fr 1fr 1fr} }
+      .rcard{
+        background:var(--cream-card); border:1px solid var(--line); border-radius:var(--radius);
+        box-shadow:var(--shadow); padding:16px; text-align:left; width:100%; color:inherit;
+        display:flex; flex-direction:column; gap:6px; position:relative;
+      }
+      .rcard h3{margin:0 26px 0 0; font-size:1.12rem; line-height:1.3; color:var(--green)}
+      .rcard .desc{margin:0; color:var(--ink-soft); font-size:.92rem}
+      .rcard .meta{display:flex; flex-wrap:wrap; gap:6px 12px; font-size:.83rem; color:var(--ink-soft); font-weight:600; margin-top:2px}
+      .rcard .carbs-pill{align-self:flex-start; background:var(--carbs-bg); color:var(--carbs-ink); font-weight:800; font-size:.85rem; padding:3px 12px; border-radius:999px; margin-top:4px}
+      .heart{
+        position:absolute; top:8px; right:8px; width:2.75rem; height:2.75rem; border-radius:50%;
+        border:none; background:transparent; font-size:1.35rem; color:#b9ac8d; line-height:1;
+      }
+      .heart.faved{color:#c0392b}
+      .empty{
+        border:1.5px dashed var(--line); border-radius:var(--radius); padding:28px 18px;
+        text-align:center; color:var(--ink-soft); background:var(--cream-card);
+      }
+      .empty .big{font-size:2rem; display:block; margin-bottom:6px}
+
+      /* ---------- Grocery ---------- */
+      .groc-actions{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px}
+      .aisle{background:var(--cream-card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:14px; overflow:hidden}
+      .aisle h3{margin:0; padding:11px 16px; background:var(--cream-dim); border-bottom:1px solid var(--line); font-size:1.05rem; color:var(--green)}
+      .aisle ul{list-style:none; margin:0; padding:6px 8px}
+      .aisle li label{
+        display:flex; align-items:flex-start; gap:12px; padding:10px 8px; border-radius:10px;
+        cursor:pointer; min-height:2.75rem;
+      }
+      .aisle li label:hover{background:var(--cream)}
+      .aisle input[type="checkbox"]{width:1.35rem; height:1.35rem; margin-top:2px; accent-color:var(--green-soft); flex:none}
+      .aisle .gitem{flex:1}
+      .aisle .gmeals{display:block; font-size:.8rem; color:var(--ink-soft)}
+      .aisle li.done .gitem{text-decoration:line-through; color:var(--ink-soft)}
+      .groc-count{font-weight:700; color:var(--ink-soft); margin:0 0 10px}
+
+      /* ---------- Shop ---------- */
+      .shop-grid{display:grid; grid-template-columns:1fr; gap:12px}
+      @media (min-width:640px){ .shop-grid{grid-template-columns:1fr 1fr} }
+      .shop-card{
+        display:block; background:var(--cream-card); border:1px solid var(--line); border-radius:var(--radius);
+        box-shadow:var(--shadow); padding:16px; text-decoration:none; color:inherit;
+      }
+      .shop-card h3{margin:0 0 4px; font-size:1.05rem; color:var(--green); line-height:1.35}
+      .shop-card p{margin:0 0 10px; color:var(--ink-soft); font-size:.92rem}
+      .shop-card .go{font-weight:800; color:var(--gold); font-size:.9rem}
+      .ftc{font-size:.85rem; color:var(--ink-soft); font-style:italic; margin-top:16px}
+
+      /* ---------- Recipe detail ---------- */
+      .overlay{
+        position:fixed; inset:0; background:rgba(10,20,10,.55); z-index:60;
+        display:none; align-items:flex-end; justify-content:center;
+      }
+      .overlay.open{display:flex}
+      .sheet{
+        background:var(--cream); color:var(--ink); width:100%; max-width:680px; max-height:92vh;
+        overflow-y:auto; border-radius:20px 20px 0 0; padding:20px 20px 34px;
+      }
+      @media (min-width:700px){ .overlay{align-items:center} .sheet{border-radius:20px} }
+      .sheet-top{display:flex; align-items:flex-start; gap:10px}
+      .sheet-top h2{margin:0; flex:1; font-size:1.5rem; line-height:1.25; color:var(--green)}
+      .close-btn{flex:none; width:2.75rem; height:2.75rem; border-radius:50%; border:1px solid var(--line); background:var(--cream-card); font-size:1.2rem; color:var(--ink)}
+      .sheet .desc{color:var(--ink-soft); margin:8px 0 0}
+      .sheet .meta{display:flex; flex-wrap:wrap; gap:6px 14px; font-weight:600; font-size:.9rem; color:var(--ink-soft); margin:12px 0}
+      .carbs-hero{
+        display:flex; align-items:center; gap:14px; background:var(--carbs-bg); color:var(--carbs-ink);
+        border-radius:var(--radius); padding:14px 18px; margin:6px 0 18px;
+      }
+      .carbs-hero .num{font-family:"Lora",Georgia,serif; font-size:2.1rem; font-weight:700; line-height:1}
+      .carbs-hero .lbl{font-size:.85rem; font-weight:600; opacity:.9}
+      .sheet h3{color:var(--green); margin:20px 0 8px; font-size:1.15rem}
+      .sheet ul.ing{margin:0; padding-left:20px}
+      .sheet ul.ing li{margin-bottom:5px}
+      .sheet ol.steps{margin:0; padding-left:22px}
+      .sheet ol.steps li{margin-bottom:8px}
+      .nut-table{width:100%; border-collapse:collapse; background:var(--cream-card); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+      .nut-table td{padding:8px 14px; border-bottom:1px solid var(--line); font-size:.95rem}
+      .nut-table tr:last-child td{border-bottom:none}
+      .nut-table td:last-child{text-align:right; font-weight:700}
+      .nut-note{font-size:.82rem; color:var(--ink-soft); margin-top:6px}
+      .disclaimer{
+        margin-top:22px; background:var(--cream-dim); border-radius:10px; padding:12px 14px;
+        font-size:.88rem; color:var(--ink-soft);
+      }
+
+      /* ---------- Bottom nav ---------- */
+      nav.tabbar{
+        position:fixed; left:0; right:0; bottom:0; z-index:40;
+        background:var(--green-deep); padding-bottom:env(safe-area-inset-bottom);
+        display:flex; box-shadow:0 -2px 12px rgba(0,0,0,.25);
+      }
+      nav.tabbar button{
+        flex:1; background:none; border:none; color:#cfd8bd; padding:9px 2px 8px;
+        font-size:.72rem; font-weight:700; letter-spacing:.02em; min-height:3.6rem;
+        display:flex; flex-direction:column; align-items:center; gap:3px;
+      }
+      nav.tabbar button .ic{font-size:1.25rem; line-height:1}
+      nav.tabbar button[aria-current="page"]{color:#fdf6dd}
+      nav.tabbar button[aria-current="page"] .ic{color:var(--gold)}
+      /* Phone widths: the tab bar sits in-flow under the header and sticks to
+         the top on scroll instead of floating over content — a fixed bottom
+         bar permanently covers whatever meal row scrolls beneath it. */
+      @media (max-width:899px){
+        body{padding-bottom:0}
+        header.app-head{position:static}
+        nav.tabbar{position:sticky; top:0; bottom:auto; padding-bottom:0; box-shadow:0 2px 12px rgba(0,0,0,.25)}
+        .toast{bottom:24px}
+      }
+      @media (min-width:900px){
+        body{padding-bottom:0}
+        nav.tabbar{position:sticky; top:64px; bottom:auto; justify-content:center; gap:6px; padding:6px 10px}
+        nav.tabbar button{flex:0 1 auto; flex-direction:row; padding:8px 18px; border-radius:999px; font-size:.9rem; min-height:2.75rem}
+        nav.tabbar button[aria-current="page"]{background:rgba(193,154,46,.22)}
+      }
+
+      footer.app-foot{max-width:1060px; margin:0 auto; padding:6px 16px 26px; color:var(--ink-soft); font-size:.88rem}
+      footer.app-foot .disc{background:var(--cream-dim); border-radius:10px; padding:12px 14px}
+      footer.app-foot a{font-weight:600}
+
+      .toast{
+        position:fixed; left:50%; bottom:calc(92px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px);
+        background:var(--green-deep); color:#fdf6dd; padding:10px 20px; border-radius:999px; font-weight:600;
+        font-size:.92rem; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:80;
+        box-shadow:0 4px 16px rgba(0,0,0,.3); max-width:92vw; text-align:center;
+      }
+      .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+      /* ---------- Print-friendly grocery view ---------- */
+      .print-overlay{
+        position:fixed; inset:0; background:#fff; color:#111; z-index:70;
+        overflow-y:auto; padding:0 0 40px;
+      }
+      .print-overlay[hidden]{display:none}
+      .print-bar{
+        position:sticky; top:0; background:#14351d; color:#f7f1de; padding:12px 16px;
+        display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center;
+      }
+      .print-bar .hint{font-size:.85rem; opacity:.85; flex:1 1 220px}
+      .print-sheet{display:none; color:#000; font-family:Georgia,serif; padding:18px 20px; max-width:760px; margin:0 auto}
+      .print-overlay .print-sheet{display:block}
+      .print-sheet h1{font-size:1.4rem; margin:0 0 4px}
+      .print-sheet h2{font-size:1.05rem; margin:16px 0 6px; border-bottom:1px solid #999; padding-bottom:3px}
+      .print-sheet ul{list-style:none; margin:0; padding:0}
+      .print-sheet li{padding:3px 0 3px 26px; position:relative}
+      .print-sheet li::before{content:""; position:absolute; left:0; top:5px; width:13px; height:13px; border:1.5px solid #000}
+      .print-sheet .sub{color:#444; font-size:.85rem}
+      @media (max-width:480px){
+        .meal-kind{width:68px; font-size:.68rem; letter-spacing:.02em}
+        .meal-row{flex-wrap:wrap}
+        .meal-main{flex:1 1 52%}
+        .meal-actions{margin-left:auto}
+      }
+      @media print{
+        body{padding-bottom:0; background:#fff}
+        header.app-head, nav.tabbar, .no-print, .overlay, .toast, footer.app-foot, main, .print-bar{display:none !important}
+        .print-overlay{display:block !important; position:static; overflow:visible; padding:0}
+        .print-overlay .print-sheet{display:block}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-head">
+      <div class="head-row">
+        <img src="assets/logo.webp" alt="Diabetes Friendly Eats logo — a plate with a leaf and fork" />
+        <div class="wordmark">
+          <div class="name">Diabetes Friendly Eats</div>
+          <div class="tag">Meal Plan App</div>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="Switch to dark mode"><span class="theme-ic" aria-hidden="true">☾</span></button>
+          <button type="button" class="head-favs" id="headFavs" aria-pressed="false">♥ Favorites</button>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tabbar" aria-label="Main">
+      <button type="button" data-view="plan" aria-current="page"><span class="ic" aria-hidden="true">🗓</span>Plan</button>
+      <button type="button" data-view="recipes"><span class="ic" aria-hidden="true">🍽</span>Recipes</button>
+      <button type="button" data-view="grocery"><span class="ic" aria-hidden="true">🛒</span>Grocery List</button>
+      <button type="button" data-view="favorites"><span class="ic" aria-hidden="true">♥</span>Favorites</button>
+      <button type="button" data-view="shop"><span class="ic" aria-hidden="true">🧺</span>Shop</button>
+    </nav>
+
+    <main>
+      <!-- PLAN -->
+      <section class="view active" id="view-plan" aria-label="Weekly meal plan">
+        <div class="plan-top">
+          <h2>This week's plan</h2>
+          <div class="week-nav">
+            <button type="button" class="btn ghost small" id="prevWeek">← Prev</button>
+            <span class="week-label" id="weekLabel"></span>
+            <button type="button" class="btn ghost small" id="nextWeek">Next →</button>
+          </div>
+        </div>
+        <p class="plan-note">Breakfast, lunch and dinner for every day, plus a snack or dessert on six days. Lunch, dinner and snacks never repeat within the week; there are six breakfasts for seven days, so one breakfast comes back once — never on back-to-back days. You can add a snack to the remaining day any time. Tap any meal for the full recipe, use <strong>Swap</strong> to trade one meal, or <strong>Shuffle day</strong> to redo a whole day. Your grocery list updates itself from whatever is on the plan.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <button type="button" class="btn" id="regenPlan">↻ Generate a fresh plan</button>
+          <button type="button" class="btn ghost" id="goGrocery">See the grocery list →</button>
+        </div>
+        <div id="planDays"></div>
+        <div class="plan-carbs-total" id="planCarbs"></div>
+      </section>
+
+      <!-- RECIPES -->
+      <section class="view" id="view-recipes" aria-label="All recipes">
+        <div class="plan-top"><h2>All recipes</h2><span class="week-label" id="recipeCount"></span></div>
+        <p class="plan-note">Every recipe shows its carb count up front. Tap a card for ingredients, steps and the full nutrition panel; tap the heart to save it to your favorites.</p>
+        <div class="toolbar">
+          <input type="search" id="recipeSearch" placeholder="Search recipes…" aria-label="Search recipes" />
+        </div>
+        <div class="toolbar" id="catChips" role="group" aria-label="Filter by meal"></div>
+        <div class="grid" id="recipeGrid"></div>
+        <div class="empty" id="recipeEmpty" hidden><span class="big">🥗</span>No recipes match that search yet.</div>
+      </section>
+
+      <!-- GROCERY -->
+      <section class="view" id="view-grocery" aria-label="Grocery list">
+        <div class="plan-top"><h2>Grocery list</h2><span class="week-label" id="grocWeekLabel"></span></div>
+        <p class="plan-note">Built automatically from the week on your Plan tab. Quantities are for one batch of each planned recipe, and anything used in more than one meal is added together into a single line. Check items off as you shop.</p>
+        <p class="groc-count" id="grocCount"></p>
+        <div class="groc-actions no-print">
+          <button type="button" class="btn small" id="printList">📋 Clean list view</button>
+          <button type="button" class="btn ghost small" id="clearChecked">Clear checked items</button>
+          <button type="button" class="btn ghost small" id="uncheckAll">Uncheck all</button>
+        </div>
+        <div id="grocList"></div>
+        <div class="empty" id="grocEmpty" hidden><span class="big">🧺</span>Nothing on the list — generate a plan first and the groceries will land here.</div>
+      </section>
+
+      <!-- FAVORITES -->
+      <section class="view" id="view-favorites" aria-label="Favorite recipes">
+        <div class="plan-top"><h2>Your favorites</h2><span class="week-label" id="favCount"></span></div>
+        <p class="plan-note">Recipes you've hearted, saved on this device so they're here whenever you open the app.</p>
+        <div class="grid" id="favGrid"></div>
+        <div class="empty" id="favEmpty" hidden><span class="big">♥</span>No favorites yet. Tap the heart on any recipe and it will live here.</div>
+      </section>
+
+      <!-- SHOP -->
+      <section class="view" id="view-shop" aria-label="Pantry shop">
+        <div class="plan-top"><h2>The pantry shop</h2></div>
+        <p class="plan-note">The tools and staples behind these recipes — the same picks from <a href="https://diabetesfriendlyeats.com/" target="_blank" rel="noopener">diabetesfriendlyeats.com</a>. Links open Amazon in a new tab.</p>
+        <div class="shop-grid" id="shopGrid"></div>
+        <p class="ftc">As an Amazon Associate I earn from qualifying purchases.</p>
+      </section>
+    </main>
+
+    <footer class="app-foot">
+      <p class="disc"><strong>General information only — not medical advice.</strong> Talk to your clinician or a registered dietitian about your own eating plan. Nutrition figures on every recipe are estimates. Recipes and more at <a href="https://diabetesfriendlyeats.com/" target="_blank" rel="noopener">diabetesfriendlyeats.com</a>.</p>
+    </footer>
+
+    <!-- Recipe detail -->
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="sheet" id="sheet"></div>
+    </div>
+
+    <!-- Print-friendly grocery view -->
+    <div class="print-overlay" id="printOverlay" hidden>
+      <div class="print-bar no-print">
+        <strong>Grocery list — clean view</strong>
+        <span class="hint">A tidy copy of this week's list, made for printing: use your browser's Print (or Share → Print) while this view is open to put it on paper.</span>
+        <button type="button" class="btn gold small" id="closePrint">← Back to the app</button>
+      </div>
+      <div class="print-sheet" id="printSheet"></div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+    "use strict";
+    /* =====================================================================
+       RECIPE DATA — one clean list. To add a recipe, copy any entry below
+       and append it inside the matching section (or anywhere in the array).
+       Library: 33 recipes — 16 from the website ("site"), 16 supplied by
+       the owner ("owner": Vol. 1 + Vol. 2 + Vol. 3), 1 written for this app ("app").
+       Fields: id (unique), meal ("breakfast" | "lunch" | "dinner" | "snack"
+       | "dessert" — desserts feed the plan generator's snack slot),
+       title, desc, prep, cook, serves, carbs (number, grams per serving),
+       ingredients (strings, "qty unit name, prep note" — the grocery list
+       parses the leading quantity), steps (strings), nutrition
+       {cal, carbs, protein, fat, fiber} (estimates), source
+       ("site" = from diabetesfriendlyeats.com, "app" = written for this app,
+       "owner" = supplied by Carl — owner recipes may replace "app" ones).
+       Owner recipes use NET carbs: set netCarbs:true and store the net
+       value in both carbs and nutrition.carbs; the UI then labels it
+       "Net carbs" / "g net carbs" (site/app recipes keep "Carbs").
+       ===================================================================== */
+    var RECIPES = [
+
+    /* ---------- From the website (source: "site") — do not edit values ---------- */
+    {id:"steak", source:"site", meal:"dinner", title:"15-Minute Sheet Pan Steak & Veggies", desc:"Flank steak and a pile of peppers, zucchini and onion, all roasted on one pan. Dinner's done before the table's set.", prep:"5 min", cook:"12 min", serves:"Serves 4", carbs:9, ingredients:["1 lb flank steak, sliced thin against the grain","2 bell peppers (any color), sliced","1 medium zucchini, half-moons","1 red onion, wedges","2 tbsp olive oil","2 cloves garlic, minced","1 tsp smoked paprika","1 tsp cumin","Salt and pepper","Fresh parsley, to finish"], steps:["Heat oven to 450°F and line a sheet pan with foil.","Toss peppers, zucchini and onion with 1 tbsp oil, half the garlic, salt and pepper; spread on the pan.","Toss steak with remaining oil, garlic, paprika and cumin.","Lay steak over the vegetables.","Roast 10–12 minutes until the steak is browned at the edges and the veg are tender-crisp.","Rest 3 minutes, scatter parsley, serve."], nutrition:{cal:380,carbs:9,fiber:3,protein:34,fat:22}},
+    {id:"salmon", source:"site", meal:"dinner", title:"Garlic Butter Salmon with Green Beans", desc:"One skillet, ten minutes of cooking, and a lemon-garlic butter that makes plain salmon feel like a restaurant plate.", prep:"5 min", cook:"12 min", serves:"Serves 4", carbs:6, ingredients:["4 salmon fillets (6 oz each)","12 oz green beans, trimmed","2 tbsp butter","3 cloves garlic, sliced","1 lemon (half juiced, half wedges)","1 tsp dried dill","Salt and pepper"], steps:["Season salmon with salt, pepper and dill.","Melt butter in a large skillet over medium-high heat; sear salmon skin-side down 4 minutes.","Flip, add garlic and green beans around the fish.","Cover and cook 5–6 minutes until salmon flakes and beans are tender-crisp.","Squeeze lemon over everything and serve with wedges."], nutrition:{cal:340,carbs:6,fiber:2,protein:32,fat:21}},
+    {id:"eggbites", source:"site", meal:"breakfast", title:"Baked Spinach & Feta Egg Bites", desc:"Grab-and-go egg muffins that keep all week. Spinach, feta, and enough protein to hold you till lunch.", prep:"10 min", cook:"18 min", serves:"Serves 6 (2 bites each)", carbs:3, ingredients:["8 large eggs","1/2 cup cottage cheese","1 cup fresh spinach, chopped","1/2 cup crumbled feta","1/2 cup cherry tomatoes, halved","1/4 tsp garlic powder","Salt and pepper","Nonstick spray"], steps:["Heat oven to 350°F; grease a 12-cup muffin tin.","Whisk eggs, cottage cheese, garlic powder, salt and pepper.","Stir in spinach, feta and tomatoes.","Divide among cups.","Bake 16–18 minutes until set and lightly golden.","Cool 5 minutes, then lift out. Keeps in the fridge up to 5 days."], nutrition:{cal:180,carbs:3,fiber:1,protein:14,fat:12}},
+    {id:"parfait", source:"site", meal:"breakfast", title:"Greek Yogurt Berry Parfait", desc:"Five minutes, one glass, no cooking. Thick yogurt, berries, chia and walnuts — sweet enough to feel like a treat.", prep:"5 min", cook:"0 min", serves:"Serves 1", carbs:18, ingredients:["3/4 cup plain nonfat Greek yogurt","1/2 cup mixed berries","1 tbsp chia seeds","2 tbsp chopped walnuts","1/2 tsp vanilla extract","A few drops of monk fruit sweetener (optional)"], steps:["Stir vanilla and sweetener into the yogurt.","Layer half the yogurt in a glass, add half the berries and chia.","Repeat the layers.","Top with walnuts and serve."], nutrition:{cal:260,carbs:18,fiber:5,protein:20,fat:10}},
+    {id:"alfredo", source:"site", meal:"dinner", title:"Zucchini Noodle Chicken Alfredo", desc:"Creamy, garlicky, and the 'noodles' are zucchini — so the plate is full and the carbs stay low.", prep:"10 min", cook:"15 min", serves:"Serves 4", carbs:8, ingredients:["4 medium zucchini, spiralized","1 lb chicken breast, sliced","2 tbsp butter","3 cloves garlic, minced","4 oz cream cheese","1/2 cup grated parmesan","1/2 cup heavy cream","Salt, pepper, pinch of nutmeg"], steps:["Sauté chicken in butter until cooked through; set aside.","In the same pan, soften garlic 30 seconds.","Add cream cheese and cream; stir until smooth.","Stir in parmesan, salt, pepper and nutmeg.","Add zucchini noodles and chicken; toss 2–3 minutes until noodles are just tender.","Serve right away."], nutrition:{cal:320,carbs:8,fiber:2,protein:34,fat:18}},
+    {id:"medbowls", source:"site", meal:"dinner", title:"Mediterranean Cauliflower Rice Bowls", desc:"Lemon chicken over cauliflower rice with cucumber, tomato, olives and feta. Bright, fresh, and filling.", prep:"10 min", cook:"12 min", serves:"Serves 4", carbs:10, ingredients:["1 lb chicken breast, cubed","4 cups cauliflower rice","1 cucumber, diced","1 cup cherry tomatoes, halved","1/2 cup kalamata olives","1/2 cup crumbled feta","2 tbsp olive oil","1 lemon, juiced","1 tsp dried oregano","2 tbsp tahini","Salt and pepper"], steps:["Season chicken with oregano, salt and pepper; cook in 1 tbsp oil until browned.","Sauté cauliflower rice in remaining oil 4–5 minutes; season with half the lemon juice.","Whisk tahini with remaining lemon juice and 2 tbsp water.","Build bowls: cauliflower rice, chicken, cucumber, tomatoes, olives, feta.","Drizzle with tahini-lemon sauce."], nutrition:{cal:350,carbs:10,fiber:4,protein:32,fat:20}},
+    {id:"stew", source:"site", meal:"dinner", title:"Slow Cooker Beef & Mushroom Stew", desc:"Set it in the morning, come home to a house that smells like Sunday. Beef, mushrooms and vegetables in a rich broth.", prep:"15 min", cook:"7 hrs on low (or 4 on high)", serves:"Serves 6", carbs:11, ingredients:["2 lb beef chuck, cubed","12 oz mushrooms, halved","3 carrots, sliced","3 celery stalks, sliced","1 onion, diced","3 cloves garlic, minced","4 cups beef broth","2 tbsp tomato paste","1 tsp thyme","2 bay leaves","Salt and pepper"], steps:["Brown beef in a hot skillet, 3–4 minutes (optional but worth it).","Add everything to the slow cooker and stir.","Cook on low 7 hours or high 4 hours.","Fish out bay leaves, taste for salt, and serve."], nutrition:{cal:310,carbs:11,fiber:3,protein:34,fat:13}},
+    {id:"salsa-chicken", source:"site", meal:"dinner", title:"Slow Cooker Salsa Chicken", desc:"Three ingredients in, shredded chicken out. Spoon it into lettuce cups or over cauliflower rice.", prep:"5 min", cook:"4 hrs on low", serves:"Serves 4", carbs:12, ingredients:["1 1/2 lb boneless chicken breasts","1 1/2 cups salsa (no sugar added)","1 tsp cumin","1 tsp chili powder","1 lime, juiced","1 bell pepper, diced","Salt"], steps:["Place chicken in the slow cooker; season with cumin, chili powder and salt.","Pour salsa over the top.","Cook on low 4 hours.","Shred with two forks right in the pot.","Stir in lime juice and diced pepper; serve."], nutrition:{cal:290,carbs:12,fiber:4,protein:36,fat:8}},
+    {id:"fajita", source:"site", meal:"dinner", title:"Air Fryer Chicken Fajita Bowls", desc:"Charred peppers and onions, juicy chicken, cauliflower rice underneath. The air fryer does the work in 12 minutes.", prep:"10 min", cook:"12 min", serves:"Serves 4", carbs:10, ingredients:["1 1/2 lb chicken breast, sliced into strips","2 bell peppers, sliced","1 onion, sliced","2 tbsp olive oil","1 tbsp fajita seasoning","4 cups cauliflower rice","1 avocado, sliced","1 lime, cut into wedges"], steps:["Heat air fryer to 400°F.","Toss chicken, peppers and onion with oil and fajita seasoning.","Cook in a single layer 10–12 minutes, shaking halfway, until chicken is cooked through.","While it cooks, sauté cauliflower rice 4 minutes with salt.","Build bowls and top with avocado and lime."], nutrition:{cal:330,carbs:10,fiber:4,protein:36,fat:14}},
+    {id:"nuggets", source:"site", meal:"dinner", title:"Crispy Air Fryer Chicken Nuggets", desc:"Almond-flour crust, real chicken, zero drive-through. Kids eat them too — that's the point.", prep:"10 min", cook:"12 min", serves:"Serves 4", carbs:4, ingredients:["1 1/2 lb chicken breast, cut into bite-size pieces","1 cup almond flour","1/2 cup grated parmesan","1 tsp paprika","1 tsp garlic powder","2 eggs, beaten","Salt and pepper","Olive oil spray"], steps:["Heat air fryer to 400°F.","Mix almond flour, parmesan, paprika, garlic powder, salt and pepper.","Dip chicken in egg, then coat in the almond mixture.","Spray the basket, arrange nuggets in one layer, spray tops lightly.","Cook 10–12 minutes, flipping once, until golden and cooked through."], nutrition:{cal:280,carbs:4,fiber:1,protein:32,fat:13}},
+    {id:"protein-balls", source:"site", meal:"snack", title:"Chocolate Almond Butter Protein Balls", desc:"No-bake, five ingredients, and they live in the fridge for the 3 p.m. moment.", prep:"10 min", cook:"Chill 30 min", serves:"Makes 12 balls", carbs:4, ingredients:["1 cup almond butter","1/2 cup almond flour","1/4 cup unsweetened cocoa powder","3 tbsp monk fruit sweetener","2 tbsp chia seeds","1 tsp vanilla extract","Pinch of salt"], steps:["Stir everything together until a firm dough forms.","Roll into 12 balls.","Chill 30 minutes to set.","Keep in the fridge up to a week."], nutrition:{cal:110,carbs:4,fiber:2,protein:4,fat:9}},
+    {id:"deviled-eggs", source:"site", meal:"snack", title:"Everything Bagel Deviled Eggs", desc:"The classic, with a yogurt swap and the seasoning everyone steals from the bagel shop.", prep:"10 min", cook:"12 min", serves:"Serves 6 (2 halves each)", carbs:1, ingredients:["6 large eggs","3 tbsp plain Greek yogurt","1 tsp Dijon mustard","1 tbsp everything bagel seasoning, plus more to top","Salt and pepper"], steps:["Cover eggs with cold water; bring to a boil, then cover and rest 10 minutes.","Cool in ice water and peel.","Halve, scoop yolks into a bowl.","Mash yolks with yogurt, mustard, seasoning, salt and pepper.","Spoon back into whites and dust with more seasoning."], nutrition:{cal:90,carbs:1,fiber:0,protein:7,fat:6}},
+    {id:"cookies", source:"site", meal:"snack", title:"Almond Flour Chocolate Chip Cookies", desc:"Soft in the middle, crisp at the edges, sweetened without sugar. The cookie jar is back.", prep:"10 min", cook:"12 min", serves:"Makes 12 cookies", carbs:5, ingredients:["2 cups almond flour","1/2 cup butter, softened","1/2 cup monk fruit sweetener","1 egg","1 tsp vanilla extract","1/2 tsp baking soda","1/4 tsp salt","1/2 cup sugar-free chocolate chips"], steps:["Heat oven to 350°F; line a baking sheet.","Beat butter and sweetener until fluffy.","Beat in egg and vanilla.","Stir in almond flour, baking soda and salt, then fold in chips.","Scoop 12 balls, flatten slightly.","Bake 11–12 minutes until edges are golden; cool on the pan."], nutrition:{cal:160,carbs:5,fiber:2,protein:4,fat:14}},
+    {id:"cheesecake", source:"site", meal:"snack", title:"No-Bake Lemon Cheesecake Bites", desc:"Bright, creamy little squares with an almond crust. No oven, no sugar, all dessert.", prep:"15 min", cook:"Chill 2 hrs", serves:"Makes 12 bites", carbs:4, ingredients:["1 cup almond flour","3 tbsp butter, melted","8 oz cream cheese, softened","1/2 cup plain Greek yogurt","1/4 cup monk fruit sweetener","Zest and juice of 1 lemon","1 tsp vanilla extract"], steps:["Mix almond flour and melted butter; press into a lined 8-inch square pan.","Beat cream cheese, yogurt, sweetener, lemon zest and juice, and vanilla until smooth.","Spread over the crust.","Chill at least 2 hours.","Cut into 12 squares and serve cold."], nutrition:{cal:120,carbs:4,fiber:1,protein:3,fat:10}},
+    {id:"jar-salads", source:"site", meal:"lunch", title:"Mason Jar Greek Salads", desc:"Dressing on the bottom, greens on top, lunch that stays crisp till Friday.", prep:"20 min", cook:"0 min", serves:"Makes 4 jars", carbs:12, ingredients:["1/2 cup chickpeas, rinsed","1 cucumber, diced","1 cup cherry tomatoes, halved","1/2 red onion, sliced","1/2 cup crumbled feta","1/2 cup kalamata olives","4 cups mixed greens","1/4 cup olive oil","2 tbsp lemon juice","1 tsp dried oregano","Salt and pepper"], steps:["Whisk oil, lemon juice, oregano, salt and pepper.","Divide dressing among 4 wide-mouth jars.","Layer in order: chickpeas, cucumber, tomatoes, onion, olives, feta, greens on top.","Seal and refrigerate up to 4 days.","Shake into a bowl to eat."], nutrition:{cal:280,carbs:12,fiber:4,protein:10,fat:20}},
+    {id:"prep-chicken", source:"site", meal:"lunch", title:"Sheet Pan Chicken & Veggie Meal Prep", desc:"One pan, four lunches. Chicken thighs, broccoli, carrots and a small scoop of sweet potato.", prep:"15 min", cook:"25 min", serves:"Serves 4", carbs:14, ingredients:["4 boneless chicken thighs","3 cups broccoli florets","2 cups baby carrots","1 medium sweet potato, cubed small","2 tbsp olive oil","1 tsp garlic powder","1 tsp paprika","Salt and pepper"], steps:["Heat oven to 425°F.","Toss everything with oil and seasonings on a sheet pan.","Roast 25 minutes until chicken is cooked through and veg are tender.","Divide into 4 containers.","Fridge up to 4 days; reheat in the microwave."], nutrition:{cal:380,carbs:14,fiber:4,protein:36,fat:18}},
+
+    /* ---------- Written for this app (source: "app") — 1 recipe (below).
+       The earlier app-written recipes were replaced by the owner's
+       Vol. 1 + Vol. 2 recipes. ---------- */
+    {id:"almond-waffles", source:"app", meal:"breakfast", title:"Cinnamon Almond Flour Waffles with Warm Berries", desc:"Crisp-edged almond flour waffles with cinnamon and warm berries — a weekend breakfast that eats like a treat.", prep:"10 min", cook:"12 min", serves:"Serves 4", carbs:8, ingredients:["2 cups almond flour","4 large eggs","¼ cup unsweetened almond milk","2 tbsp butter, melted","1 tbsp monk fruit sweetener","1 tsp baking powder","1 tsp ground cinnamon","1 tsp vanilla extract","1 cup mixed berries","Butter or oil, for the waffle iron"], steps:["Whisk almond flour, baking powder, cinnamon and sweetener in a bowl.","Whisk eggs, almond milk, melted butter and vanilla in a second bowl, then stir into the dry ingredients until just combined.","Cook in a hot, lightly greased waffle iron 3–4 minutes per waffle until golden and crisp at the edges.","Warm the berries in a small pan for 2 minutes until they just soften, then spoon over the waffles and serve."], nutrition:{cal:310,carbs:8,fiber:4,protein:12,fat:24}},
+
+    /* ---------- Owner recipes (source: "owner") — Carl's Global Glycemic-Controlled
+       Culinary Library, Vol. 1. Titles, ingredients, steps and nutrition are
+       exactly as supplied; carbs are NET carbs (netCarbs:true). Prep/cook
+       times are estimates, labelled "(est.)". Vol. 2 follows below. ---------- */
+    {id:"moroccan-sea-bass", source:"owner", netCarbs:true, meal:"dinner", title:"Moroccan Chermoula-Crusted Sea Bass over Roasted Cauliflower Couscous", desc:"Bright, herbaceous North African sea bass with toasted cumin and preserved lemon, served over nutty roasted cauliflower.", prep:"15 min (est.)", cook:"25 min (est.)", serves:"Serves 4", carbs:7, ingredients:["4 wild-caught sea bass fillets (6 oz each, skin-on)","1 large head cauliflower","1 bunch fresh cilantro","1 bunch flat-leaf parsley","4 cloves garlic","1 lemon","1 jar preserved lemons (rind only)","Extra-virgin olive oil","Ground cumin","Smoked paprika","Cayenne pepper","Sea salt","Black pepper"], steps:["Make the Chermoula: Finely mince cilantro, parsley, garlic, and 1 tablespoon rinsed preserved lemon rind. Whisk into 3 tablespoons olive oil with 1 tsp cumin, 1 tsp smoked paprika, a pinch of cayenne, and sea salt.","Prep the Base: Pulse cauliflower florets in a food processor until grain-sized. Toss with 1 tablespoon olive oil and salt, spread on a sheet pan, and roast at 425°F (220°C) for 15 minutes until lightly browned and dry — never steamed or mushy.","Sear the Fish: Score the sea bass skin. Pan-sear skin-side down in a hot skillet for 4 minutes until crisp, flip, spoon chermoula over the flesh, and finish in the oven for 5 minutes. Serve over the roasted cauliflower."], nutrition:{cal:410,carbs:7,fiber:5,protein:36,fat:24}},
+    {id:"lomo-saltado", source:"owner", netCarbs:true, meal:"lunch", title:"Peruvian Lomo Saltado with Jicama \"Frites\"", desc:"Seared beef strips, blistered red onion and tomato, tossed with crisp golden jicama fries — a Peruvian classic, reimagined.", prep:"15 min (est.)", cook:"25 min (est.)", serves:"Serves 4", carbs:9, ingredients:["1.5 lbs beef tenderloin or top sirloin, sliced into thick strips","1 medium jicama (peeled and cut into fry-sized batons)","1 red onion (thickly wedged)","2 Roma tomatoes (wedged)","1 bunch cilantro","2 cloves garlic","1-inch piece fresh ginger","Avocado oil","Coconut aminos (or low-sodium tamari)","Red wine vinegar","Ají amarillo paste (unsweetened)","Black pepper"], steps:["Crisp the Jicama: Toss jicama batons in 1 tablespoon avocado oil and salt. Air-fry or roast at 425°F for 22–25 minutes until golden on the edges.","High-Heat Sear: Heat 1 tablespoon avocado oil in a carbon-steel wok or cast-iron skillet until smoking. Sear beef strips in batches for 90 seconds per side so they brown without steaming; set aside.","Deglaze & Toss: In the same pan, blister the red onion, garlic, and ginger for 1 minute. Add tomatoes, 3 tablespoons coconut aminos, 2 tablespoons red wine vinegar, and 1 teaspoon ají amarillo paste. Return beef and jicama to the pan, toss for 30 seconds to coat, and finish with fresh cilantro."], nutrition:{cal:445,carbs:9,fiber:7,protein:38,fat:22}},
+    {id:"bulgogi-wraps", source:"owner", netCarbs:true, meal:"lunch", title:"Korean Spicy Pork Bulgogi (Jeyuk Bokkeum) Lettuce Wraps", desc:"Spicy-sweet Korean pork, caramelized at the edges and wrapped in cool, crisp lettuce leaves.", prep:"15 min (est., plus 30 min marinating)", cook:"10 min (est.)", serves:"Serves 4", carbs:5, ingredients:["1.5 lbs thinly sliced pork shoulder or pork loin","2 heads butter lettuce or perilla leaves","4 scallions","1 small Korean radish (or daikon)","4 cloves garlic","1-inch ginger root","1 jalapeño","Sugar-free gochujang (or gochugaru chili flakes mixed with miso paste)","Toasted sesame oil","Tamari","Granular monk fruit sweetener","Toasted sesame seeds"], steps:["Marinade: Grate 2 tablespoons of radish, garlic, and ginger. Mix with 2 tablespoons gochugaru (Korean chili flakes), 1 tablespoon red miso, 2 tablespoons tamari, 1 tablespoon sesame oil, and 1 teaspoon monk fruit. Toss with sliced pork and marinate for 30 minutes.","Stir-Fry: Cook pork over high heat in a wide skillet for 5–6 minutes until caramelized at the edges. Toss in sliced scallions and jalapeño during the final minute.","Serve: Garnish with sesame seeds and serve family-style wrapped in chilled butter lettuce leaves."], nutrition:{cal:390,carbs:5,fiber:3,protein:34,fat:25}},
+    {id:"tom-kha-gai", source:"owner", netCarbs:true, meal:"lunch", title:"Thai Tom Kha Gai (Coconut Galangal Chicken Soup)", desc:"Fragrant coconut soup with chicken, mushrooms, lemongrass and lime — rich, tangy and warming.", prep:"15 min (est.)", cook:"20 min (est.)", serves:"Serves 4", carbs:6, ingredients:["1.5 lbs boneless, skinless chicken thighs, sliced thin","8 oz cremini or oyster mushrooms (sliced)","2 stalks lemongrass (bruised and cut into 2-inch pieces)","1-inch fresh galangal (or ginger, sliced)","4 makrut lime leaves","2 Thai bird chilies","2 limes","Fresh cilantro","1 can (13.5 oz) full-fat unsweetened coconut milk","3 cups chicken bone broth","Fish sauce"], steps:["Infuse the Broth: Bring bone broth, lemongrass, galangal, makrut lime leaves, and smashed chilies to a gentle simmer for 10 minutes to extract essential oils.","Poach & Enrich: Add chicken thighs and mushrooms; simmer gently for 8 minutes until chicken is cooked through. Pour in coconut milk and warm through without boiling (boiling splits the coconut emulsion).","Balance: Remove from heat and season with 2 tablespoons fish sauce and the juice of 2 limes. Garnish with cilantro leaves."], nutrition:{cal:430,carbs:6,fiber:2,protein:35,fat:29}},
+    {id:"ratatouille-duck", source:"owner", netCarbs:true, meal:"dinner", title:"French Provençal Ratatouille with Herb-Seared Duck Breast", desc:"Crisp-skinned duck breast over slow-cooked Provençal ratatouille, finished with fresh basil.", prep:"15 min (est.)", cook:"40 min (est.)", serves:"Serves 4", carbs:8, ingredients:["2 large boneless duck breasts (about 12 oz each)","1 medium eggplant","2 zucchini","1 red bell pepper","1 yellow onion","3 Roma tomatoes","4 cloves garlic","Fresh thyme","Fresh basil","Extra-virgin olive oil","Herbes de Provence","Sea salt","Cracked black pepper"], steps:["Render the Duck: Score duck skin in a crosshatch pattern without cutting into the meat. Place skin-side down in a cold skillet, turn heat to medium-low, and render fat for 15 minutes until skin is mahogany and crisp. Flip for 3 minutes for medium-rare; rest 10 minutes before slicing.","Simmer Ratatouille: Dice eggplant, zucchini, bell pepper, onion, and tomatoes into uniform ½-inch cubes. Sauté onion and garlic in 1 tablespoon rendered duck fat, add remaining vegetables and 1 teaspoon herbes de Provence, and simmer covered for 20 minutes until tender. Finish with torn basil."], nutrition:{cal:480,carbs:8,fiber:4,protein:32,fat:35}},
+    {id:"palak-paneer", source:"owner", netCarbs:true, meal:"lunch", title:"Indian Palak Paneer with Crispy Spiced Halloumi", desc:"Creamy spiced spinach with golden, crisp-edged halloumi — a rich vegetarian main.", prep:"15 min (est.)", cook:"20 min (est.)", serves:"Serves 4", carbs:6, ingredients:["12 oz halloumi or paneer cheese (cubed)","½ cup full-fat Greek yogurt (or heavy cream)","1 lb fresh baby spinach","1 medium yellow onion","1 Roma tomato","3 cloves garlic","1-inch ginger","1 serrano chili","Fresh cilantro","Ghee (clarified butter)","Cumin seeds","Garam masala","Ground turmeric","Ground coriander","Salt"], steps:["Blanch & Purée: Blanch spinach in boiling salted water for 60 seconds, then shock in ice water to lock in chlorophyll. Blend with cilantro and serrano chili into a velvety purée.","Build the Masala: Bloom 1 teaspoon cumin seeds in 1 tablespoon ghee. Add diced onion, garlic, and ginger; cook until golden. Stir in diced tomato, 1 tsp coriander, ½ tsp turmeric, and 1 tsp garam masala until oil separates.","Finish: Fold in the spinach purée and Greek yogurt. In a separate dry nonstick pan, sear halloumi cubes until golden crusted, then fold into the greens just before serving."], nutrition:{cal:420,carbs:6,fiber:4,protein:28,fat:31}},
+    {id:"lamb-keftedes", source:"owner", netCarbs:true, meal:"lunch", title:"Greek Lamb Keftedes with Tzatziki & Marinated Artichoke Salad", desc:"Herb-flecked lamb meatballs with cool tzatziki and a bright marinated artichoke salad.", prep:"20 min (est.)", cook:"20 min (est.)", serves:"Serves 4", carbs:7, ingredients:["1.5 lbs ground lamb","1 cup full-fat strained Greek yogurt (2% or 5%)","1 English cucumber","1 red onion","1 bunch fresh mint","1 bunch fresh dill","3 cloves garlic","2 lemons","1 jar marinated artichoke hearts (in olive oil/water, no sugar)","Kalamata olives","Dried oregano","Ground cinnamon","Olive oil"], steps:["Form & Bake Keftedes: Grate half the red onion and squeeze out excess liquid. Mix with ground lamb, 2 minced garlic cloves, chopped mint, 1 tsp dried oregano, ¼ tsp cinnamon, salt, and pepper. Roll into 16 meatballs and roast at 400°F (200°C) for 16–18 minutes.","Prepare Tzatziki: Grate half the cucumber, salt it, and squeeze dry in a clean towel. Mix with Greek yogurt, 1 grated garlic clove, chopped dill, 1 tablespoon olive oil, and juice of 1 lemon.","Assemble: Toss drained artichoke hearts, halved Kalamata olives, diced remaining cucumber, and lemon juice as a bright side salad alongside the meatballs and tzatziki."], nutrition:{cal:460,carbs:7,fiber:4,protein:35,fat:32}},
+    {id:"moqueca", source:"owner", netCarbs:true, meal:"dinner", title:"Brazilian Moqueca Baiana (Coconut-Lime Snapper Stew)", desc:"Bahian coconut-lime stew with tender snapper, sweet peppers and cilantro.", prep:"15 min (est., plus 15 min marinating)", cook:"15 min (est.)", serves:"Serves 4", carbs:7, ingredients:["1.5 lbs firm white fish (red snapper, halibut, or cod), cut into 2-inch chunks","1 red bell pepper","1 yellow bell pepper","1 medium yellow onion","2 ripe tomatoes","3 cloves garlic","1 bunch cilantro","2 limes","1 can (13.5 oz) unsweetened coconut milk","1 tablespoon red palm oil (or olive oil + ½ tsp annatto/paprika)","Sea salt"], steps:["Marinate Fish: Toss fish chunks with lime juice, minced garlic, and sea salt; let sit for 15 minutes while prepping vegetables.","Layer the Stew: Thinly slice onion, bell peppers, and tomatoes into rings. Heat red palm oil in a heavy Dutch oven, layer half the vegetables, top with fish, and cover with remaining vegetables.","Simmer: Pour coconut milk over the top, cover tightly, and simmer gently over medium-low heat for 12–15 minutes until fish flakes easily. Scatter generously with chopped cilantro before serving."], nutrition:{cal:405,carbs:7,fiber:3,protein:36,fat:25}},
+    {id:"gambas-al-ajillo", source:"owner", netCarbs:true, meal:"dinner", title:"Spanish Garlic Shrimp (Gambas al Ajillo) with Shaved Fennel & Asparagus", desc:"Sizzling garlic shrimp in smoked-paprika olive oil, with crisp asparagus and shaved fennel.", prep:"10 min (est.)", cook:"10 min (est.)", serves:"Serves 4", carbs:6, ingredients:["1.5 lbs large wild shrimp (peeled and deveined, tails on)","1 bunch thin asparagus (woody ends snapped)","1 bulb fresh fennel (cored and shaved paper-thin)","6 cloves garlic (thinly sliced)","1 lemon","Flat-leaf parsley","Extra-virgin olive oil","Dry sherry (optional, 2 tbsp)","Smoked Spanish paprika (pimentón)","Crushed red pepper flakes"], steps:["Toss the Salad: Toss shaved fennel with lemon juice, 1 tablespoon olive oil, and sea salt so it softens slightly while cooking the shrimp.","Blister Asparagus: Sear asparagus in a hot skillet with 1 teaspoon olive oil for 3–4 minutes until bright green and crisp-tender; plate alongside fennel.","Sizzle the Shrimp: In the same skillet, warm ¼ cup olive oil over medium heat. Add sliced garlic and red pepper flakes; cook 60 seconds until garlic is fragrant (not brown). Add shrimp and 1 tsp smoked paprika, cooking 2 minutes per side until opaque. Deglaze with sherry, toss with parsley, and spoon garlic oil over the shrimp and asparagus."], nutrition:{cal:360,carbs:6,fiber:4,protein:34,fat:22}},
+    {id:"adana-kebabs", source:"owner", netCarbs:true, meal:"dinner", title:"Turkish Grilled Chicken Adana Kebabs with Sumac Onion Salad", desc:"Char-grilled spiced chicken kebabs with tangy sumac-rubbed red onions.", prep:"20 min (est.)", cook:"10 min (est.)", serves:"Serves 4", carbs:5, ingredients:["1.5 lbs ground chicken (preferably dark meat or a mix of breast and thigh for moisture)","1 red bell pepper (finely minced and squeezed dry)","1 large red onion (halved and thinly sliced)","1 bunch flat-leaf parsley","3 cloves garlic","1 lemon","Ground sumac","Aleppo pepper (or mild chili flakes)","Ground cumin","Olive oil","Wooden or metal skewers"], steps:["Season & Skewer: Combine ground chicken, squeezed red bell pepper, minced garlic, finely chopped parsley, 1 tsp cumin, 1 tsp Aleppo pepper, and salt. Knead for 2 minutes until tacky, then mold onto flat skewers in elongated ribbons.","Make Sumac Onions: Rub sliced red onions with 1 tablespoon ground sumac, a pinch of salt, lemon juice, and remaining parsley leaves until softened and vibrant magenta.","Grill: Grill or broil skewers over high heat for 4–5 minutes per side until charred outside and cooked through (165°F internal temperature). Serve immediately over the sumac onion salad."], nutrition:{cal:380,carbs:5,fiber:2,protein:39,fat:21}},
+
+    /* ---------- Owner recipes, Vol. 2 (source: "owner") — breakfasts &
+       desserts from Carl's Diabetes Friendly Breakfast and Dessert Recipes.
+       Titles, ingredients, steps and nutrition exactly as supplied; carbs
+       are NET carbs (netCarbs:true). Prep/cook times are estimates,
+       labelled "(est.)". Desserts use meal:"dessert" and feed the plan
+       generator's snack slot. ---------- */
+    {id:"shakshuka", source:"owner", netCarbs:true, meal:"breakfast", title:"Levantine Shakshuka with Whipped Labneh & Za'atar", desc:"Eggs poached in a spiced, slow-simmered tomato and red pepper sauce, finished with whipped labneh and za'atar.", prep:"10 min (est.)", cook:"20 min (est.)", serves:"Serves 4", carbs:7, ingredients:["8 large pasture-raised eggs","½ cup full-fat labneh (or strained Greek yogurt)","1 red bell pepper (diced)","1 medium yellow onion (diced)","4 cloves garlic (minced)","1 jalapeño (seeded and minced)","1 bunch fresh cilantro","1 bunch flat-leaf parsley","1 can (28 oz) crushed San Marzano tomatoes (no sugar added)","Extra-virgin olive oil","Ground cumin","Smoked paprika","Cayenne pepper","Za'atar spice blend","Sea salt"], steps:["Build the Base: Heat 2 tablespoons olive oil in a wide, deep skillet over medium heat. Sauté onion and bell pepper for 6 minutes until softened. Add garlic, jalapeño, 1 ½ teaspoons cumin, 1 teaspoon smoked paprika, and a pinch of cayenne; toast for 60 seconds.","Simmer & Poach: Pour in crushed tomatoes and salt; simmer for 10 minutes until thickened. Make 8 shallow wells with the back of a spoon, crack one egg into each well, cover, and cook 5–7 minutes until whites are set and yolks remain runny.","Garnish: Dollop cold labneh over the warm sauce, scatter with za'atar, cilantro, and parsley, and serve immediately."], nutrition:{cal:315,carbs:7,fiber:3,protein:21,fat:22}},
+    {id:"tamagoyaki-salmon", source:"owner", netCarbs:true, meal:"breakfast", title:"Japanese Tamagoyaki (Rolled Dashi Omelet) with Miso-Glazed Salmon", desc:"Delicate rolled dashi omelet with miso-glazed salmon and grated daikon.", prep:"10 min (est.)", cook:"15 min (est.)", serves:"Serves 4", carbs:3, ingredients:["8 large eggs","4 wild salmon fillets (4 oz each, skin-on)","3 scallions (thinly sliced)","2-inch piece daikon radish (grated)","1-inch fresh ginger (grated)","1 cup dashi stock (or water + ½ tsp hondashi granules)","White miso paste","Tamari","Toasted sesame oil","Liquid monk fruit extract (zero-carb)","Avocado oil"], steps:["Bake the Salmon: Whisk 1 tablespoon white miso, 1 teaspoon tamari, 1 teaspoon sesame oil, grated ginger, and 3 drops liquid monk fruit. Brush over salmon fillets and broil on high for 6–7 minutes until caramelized.","Whisk the Tamagoyaki: Gently beat eggs with ½ cup dashi stock, 1 teaspoon tamari, and 4 drops liquid monk fruit (avoid over-whisking to prevent air bubbles).","Roll the Omelet: Lightly oil a rectangular tamagoyaki pan or 8-inch nonstick skillet over medium heat. Pour in a thin layer of egg; as it sets, roll it to one side of the pan. Oil the empty space, pour in more egg (lifting the roll so raw egg flows underneath), and roll again. Repeat 3–4 times, slice into medallions, and serve alongside salmon and grated daikon."], nutrition:{cal:395,carbs:3,fiber:1,protein:34,fat:27}},
+    {id:"huevos-divorciados", source:"owner", netCarbs:true, meal:"breakfast", title:"Mexican Huevos Divorciados over Crispy Chicharrón & Avocado", desc:"Crispy pork rinds topped with fried eggs, red and green salsas, avocado and queso fresco.", prep:"15 min (est.)", cook:"15 min (est.)", serves:"Serves 4", carbs:6, ingredients:["8 large eggs","3 oz plain pork rinds (chicharrónes)","½ cup crumbled queso fresco","6 tomatillos (husked and rinsed)","3 Roma tomatoes","2 ripe avocados (sliced)","1 white onion","2 jalapeños","3 cloves garlic","1 bunch cilantro","2 limes","Avocado oil","Dried ancho chili (or 1 tsp ancho chili powder)","Sea salt"], steps:["Roast the Dual Salsas: Broil tomatillos, Roma tomatoes, jalapeños, half the onion, and unpeeled garlic on a sheet pan for 8 minutes until blistered. Blend tomatillos with 1 jalapeño, half the cilantro, lime juice, and salt for salsa verde. Blend tomatoes with the remaining jalapeño, ancho chili, garlic, and salt for salsa roja.","Fry the Eggs: Fry 8 eggs sunny-side up in avocado oil until edges are lacy and crisp.","Plate: Divide pork rinds across 4 plates, top each with two eggs, ladle salsa verde over one egg and salsa roja over the other, and garnish with sliced avocado, queso fresco, and minced onion."], nutrition:{cal:440,carbs:6,fiber:5,protein:28,fat:33}},
+    {id:"panna-cotta", source:"owner", netCarbs:true, meal:"dessert", title:"Italian Espresso & Mascarpone Panna Cotta", desc:"Silky espresso-mascarpone custard, set with gelatin and dusted with cocoa.", prep:"15 min (est.)", cook:"10 min (est.) · chill 3 hrs", serves:"Serves 4", carbs:3, ingredients:["1 cup heavy whipping cream","8 oz full-fat mascarpone cheese (room temperature)","½ cup freshly brewed espresso (cooled slightly)","1 packet (2 ¼ tsp) unflavored grass-fed gelatin powder","3 tablespoons powdered allulose or erythritol-monk fruit blend","1 teaspoon pure vanilla extract","1 tablespoon unsweetened Dutch-process cocoa powder","Pinch of sea salt"], steps:["Bloom the Gelatin: Pour warm espresso into a small bowl, sprinkle gelatin evenly over the surface, and let stand for 5 minutes until spongy.","Infuse the Cream: In a saucepan over low heat, warm heavy cream, powdered sweetener, vanilla, and sea salt until steam rises (do not boil). Remove from heat and whisk in the bloomed gelatin until completely dissolved.","Emulsify & Chill: Whisk the warm cream mixture gradually into the room-temperature mascarpone until velvety smooth. Divide into 4 ramekins, chill for at least 3 hours until set, and dust lightly with unsweetened cocoa powder before serving."], nutrition:{cal:340,carbs:3,fiber:1,protein:6,fat:34}},
+    {id:"pistachio-mousse", source:"owner", netCarbs:true, meal:"dessert", title:"Middle Eastern Cardamom & Rosewater Pistachio Cheesecake Mousse", desc:"A no-bake whipped cream cheese and labneh mousse scented with cardamom and rosewater, topped with toasted pistachios.", prep:"15 min (est.)", cook:"5 min (est.) · chill 30 min", serves:"Serves 4", carbs:5, ingredients:["8 oz full-fat cream cheese (softened)","½ cup heavy whipping cream","¼ cup full-fat Greek yogurt or labneh","⅓ cup shelled raw pistachios (finely chopped)","3 tablespoons powdered monk fruit/allulose sweetener","½ teaspoon freshly ground green cardamom","½ teaspoon culinary rosewater (or orange blossom water)","½ teaspoon vanilla extract"], steps:["Whip the Base: Beat softened cream cheese, Greek yogurt, powdered sweetener, ground cardamom, rosewater, and vanilla with a hand mixer for 2 minutes until completely smooth and aerated.","Fold in Cream: In a separate chilled bowl, whip heavy cream to stiff peaks. Gently fold the whipped cream into the spiced cream cheese mixture in two additions to preserve volume.","Toast & Serve: Toast chopped pistachios in a dry skillet over medium heat for 2 minutes until fragrant. Spoon mousse into 4 coupe glasses, chill 30 minutes, and top with warm toasted pistachios."], nutrition:{cal:365,carbs:5,fiber:2,protein:9,fat:33}},
+
+    /* ---------- Owner recipe, Vol. 3 (source: "owner") — American
+       brand-name dinner. Title, ingredients, steps and nutrition exactly
+       as supplied; carbs are NET carbs (netCarbs:true). Prep/cook times
+       are estimates, labelled "(est.)". Brand names kept exactly as
+       written in the grocery list. ---------- */
+    {id:"jalapeno-popper-burger-skillet", source:"owner", netCarbs:true, meal:"dinner", title:"All-American Jalapeño Popper Bacon Cheeseburger Skillet", desc:"A creamy one-skillet cheeseburger with crispy bacon, jalapeño heat, melted sharp cheddar and tangy pickles, served over crisp lettuce.", prep:"10 min (est.)", cook:"20 min (est.)", serves:"Serves 4", carbs:4, ingredients:["1.5 lbs Laura's Lean 92% Lean Ground Beef (or Certified Angus Beef ground chuck)","6 slices Oscar Mayer Center Cut Bacon (chopped)","4 oz Philadelphia Original Cream Cheese (cubed, room temperature)","1 cup Tillamook Sharp Cheddar Cheese (shredded)","2 tbsp Land O'Lakes Unsalted Butter","2 fresh jalapeño peppers (seeded, finely diced)","1 head Dole Iceberg or Romaine Lettuce","4 Mount Olive Kosher Dill Pickle Spears (diced)","3 tbsp Heinz Tomato Ketchup with No Sugar Added","1 tbsp French's Classic Yellow Mustard","1 tbsp Hellmann's Real Mayonnaise","1 tsp McCormick Garlic Powder","1 tsp McCormick Onion Powder","Morton Kosher Salt & McCormick Coarse Ground Black Pepper"], steps:["Crisp the chopped bacon in a cast-iron skillet 6–7 minutes, reserve 1 tbsp drippings.","Brown the beef with jalapeños, garlic powder, onion powder, salt and pepper — sear undisturbed 3 minutes for a crust, then break apart; drain excess fat.","On low heat stir in butter, cream cheese, ketchup, mustard and mayonnaise until smooth and creamy; fold in half the bacon, top with cheddar, cover 2 minutes until melted.","Garnish with remaining bacon and diced pickles; serve over shredded lettuce or in lettuce cups."], nutrition:{cal:520,carbs:4,fiber:1,protein:37,fat:39}}
+
+    ];
+
+    /* Pantry shop — the website's 8 verified products, links carry the affiliate tag. */
+    var SHOP = [
+    {name:"Ninja Air Fryer AF101, 4-Qt", line:"The one behind the fajita bowls and nuggets.", asin:"B07FDJMC9Q"},
+    {name:"OXO Good Grips 3-Blade Tabletop Spiralizer", line:"Turns zucchini into noodles for the Alfredo.", asin:"B01C2TT2H8"},
+    {name:"Escali Primo Digital Food Scale", line:"Portions you can trust, down to the gram.", asin:"B0007GAWRS"},
+    {name:"Blue Diamond Almond Flour, 48 oz", line:"The base of the cookies, nuggets and cheesecake crust.", asin:"B07L9Q45HG"},
+    {name:"Lakanto Classic Monk Fruit Sweetener, 1 lb", line:"Sweetens the desserts without sugar.", asin:"B077SPTP4Z"},
+    {name:"Bentgo Prep 3-Compartment Meal Prep Containers, 20-piece", line:"Sunday prep, packed and ready.", asin:"B08DK85RV9"},
+    {name:"The Complete Diabetes Cookbook — America's Test Kitchen", line:"400+ diabetes-friendly recipes from the ATK test kitchen.", asin:"1945256583"},
+    {name:"The Diabetic Cookbook and Meal Plan for the Newly Diagnosed — Lori Zanini, RD, CDE", line:"A 4-week starter guide for the newly diagnosed.", asin:"164152023X"}
+    ];
+    </script>
+
+    <script>
+    "use strict";
+    var $ = function(s, el){ return (el||document).querySelector(s); };
+    var $$ = function(s, el){ return Array.prototype.slice.call((el||document).querySelectorAll(s)); };
+    function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function byId(id){ for (var i=0;i<RECIPES.length;i++) if (RECIPES[i].id===id) return RECIPES[i]; return null; }
+    function pool(meal){
+      /* Desserts (meal:"dessert") feed the plan's snack slot, same as snacks. */
+      if (meal === "snack") return RECIPES.filter(function(r){ return r.meal === "snack" || r.meal === "dessert"; });
+      return RECIPES.filter(function(r){ return r.meal === meal; });
+    }
+    function carbBadge(r){ return r.carbs + "g " + (r.netCarbs ? "net carbs" : "carbs"); }
+    function carbRowLabel(r){ return r.netCarbs ? "Net carbs" : "Carbohydrates"; }
+
+    /* ---------- persistent state (on-device only) ---------- */
+    var LS = { favs:"dfe.favs.v1", plans:"dfe.plans.v1", groc:"dfe.groc.v1" };
+    function loadJSON(key, fallback){
+      try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+      catch(e){ return fallback; }
+    }
+    function saveJSON(key, val){ try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){} }
+    var favs = loadJSON(LS.favs, []);
+    var plans = loadJSON(LS.plans, {});       /* weekKey -> {version, days:[[b,l,d,snack|null] x7]} */
+    var grocChecked = loadJSON(LS.groc, {});  /* weekKey -> [lineKey,...] */
+    function isFav(id){ return favs.indexOf(id) >= 0; }
+    function toggleFav(id){
+      var i = favs.indexOf(id);
+      if (i >= 0) favs.splice(i,1); else favs.push(id);
+      saveJSON(LS.favs, favs);
+      return i < 0;
+    }
+
+    /* ---------- week helpers ---------- */
+    var DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    var MEALS = [ {key:"breakfast", label:"Breakfast"}, {key:"lunch", label:"Lunch"}, {key:"dinner", label:"Dinner"}, {key:"snack", label:"Snack"} ];
+    function mondayOf(d){
+      var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      var dow = (x.getDay() + 6) % 7; /* Mon = 0 */
+      x.setDate(x.getDate() - dow);
+      return x;
+    }
+    function fmtDate(d){ return d.toLocaleDateString("en-US", {month:"short", day:"numeric"}); }
+    function weekKeyOf(monday){ return monday.getFullYear()+"-"+String(monday.getMonth()+1).padStart(2,"0")+"-"+String(monday.getDate()).padStart(2,"0"); }
+    var weekOffset = 0;
+    function currentMonday(){ var m = mondayOf(new Date()); m.setDate(m.getDate() + weekOffset*7); return m; }
+
+    /* ---------- deterministic plan generation ----------
+       Seeded by the week's Monday + a version counter, so a given week
+       always produces the same plan, plans differ week to week, and the
+       rotation walks the whole pool over ~4 weeks. Lunch, dinner and
+       snack slots draw without replacement (zero repeats in a week).
+       The breakfast pool (6) is one short of a week, so exactly one
+       breakfast repeats — at most twice, never on consecutive days. */
+    function hashSeed(str){
+      var h = 2166136261;
+      for (var i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return h >>> 0;
+    }
+    function mulberry32(seed){
+      var a = seed >>> 0;
+      return function(){
+        a |= 0; a = (a + 0x6D2B79F5) | 0;
+        var t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function shuffled(arr, rand){
+      var a = arr.slice();
+      for (var i=a.length-1;i>0;i--){ var j = Math.floor(rand()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+      return a;
+    }
+    function generatePlan(weekKey, version){
+      var days = [];
+      var i, d;
+      for (d=0; d<7; d++) days.push([null,null,null,null]);
+      MEALS.forEach(function(m, mi){
+        var p = pool(m.key);
+        if (!p.length) return;
+        var rand = mulberry32(hashSeed(weekKey+"|"+version+"|"+m.key));
+        var order = shuffled(p, rand);
+        /* rotate the pool by week so consecutive weeks lead with different recipes */
+        var rot = (hashSeed(weekKey+"|rot") + version*3) % order.length;
+        order = order.slice(rot).concat(order.slice(0, rot));
+        if (order.length >= 7){
+          for (d=0; d<7; d++) days[d][mi] = order[d].id;
+        } else if (m.key === "breakfast"){
+          /* Breakfast pool is 6 for 7 days, so one repeat is unavoidable:
+             deal the whole pool out once, then give each remaining day a
+             recipe that is not the previous day's — every breakfast is
+             used at most twice and never on consecutive days. */
+          var bcounts = {};
+          for (d=0; d<order.length; d++){ days[d][mi] = order[d].id; bcounts[order[d].id] = 1; }
+          for (d=order.length; d<7; d++){
+            var bcands = order.filter(function(r){ return (bcounts[r.id]||0) < 2 && days[d-1][mi] !== r.id; });
+            var bpick = bcands[Math.floor(rand()*bcands.length)];
+            days[d][mi] = bpick.id; bcounts[bpick.id] = (bcounts[bpick.id]||0) + 1;
+          }
+        } else {
+          /* Pool smaller than a week (snacks: 6 recipes incl. desserts):
+             fill only as many days as the pool has, spread evenly across
+             the week and rotated by week, leaving the other days empty —
+             so no recipe ever repeats inside a week. The empty days
+             show "+ Add a snack". */
+          var start = hashSeed(weekKey+"|"+version+"|"+m.key+"|offset") % 7;
+          var filled = {};
+          for (var k=0; k<order.length; k++){
+            var dayIdx = (start + Math.round(k * 7 / order.length)) % 7;
+            while (filled[dayIdx]) dayIdx = (dayIdx + 1) % 7;
+            filled[dayIdx] = true;
+            days[dayIdx][mi] = order[k].id;
+          }
+        }
+      });
+      return days;
+    }
+    function getPlan(weekKey){
+      /* A saved plan may name recipes the library no longer has (recipes
+         are replaced as new owner volumes arrive) — regenerate it. */
+      if (plans[weekKey]){
+        var stale = plans[weekKey].days.some(function(day){ return day.some(function(rid){ return rid && !byId(rid); }); });
+        if (stale) delete plans[weekKey];
+      }
+      if (!plans[weekKey]) {
+        plans[weekKey] = { version: 1, days: generatePlan(weekKey, 1) };
+        saveJSON(LS.plans, plans);
+      }
+      return plans[weekKey];
+    }
+    function usedInWeek(days, mealIdx, exceptDay){
+      var used = {};
+      days.forEach(function(day, d){ if (d !== exceptDay && day[mealIdx]) used[day[mealIdx]] = true; });
+      return used;
+    }
+    function swapMeal(weekKey, dayIdx, mealIdx){
+      var plan = getPlan(weekKey);
+      var meal = MEALS[mealIdx].key;
+      var used = usedInWeek(plan.days, mealIdx, dayIdx);
+      var current = plan.days[dayIdx][mealIdx];
+      var candidates;
+      if (meal === "breakfast"){
+        /* The breakfast pool (6) is smaller than the week, so a swap may
+           reuse a recipe that appears once elsewhere — but never a third
+           use, and never next to its other appearance. */
+        var counts = {};
+        plan.days.forEach(function(day, dd){ if (dd !== dayIdx && day[mealIdx]) counts[day[mealIdx]] = (counts[day[mealIdx]]||0) + 1; });
+        var prevId = dayIdx > 0 ? plan.days[dayIdx-1][mealIdx] : null;
+        var nextId = dayIdx < 6 ? plan.days[dayIdx+1][mealIdx] : null;
+        candidates = pool(meal).filter(function(r){
+          return r.id !== current && (counts[r.id]||0) < 2 && r.id !== prevId && r.id !== nextId;
+        });
+      } else {
+        candidates = pool(meal).filter(function(r){ return !used[r.id] && r.id !== current; });
+      }
+      if (candidates.length){
+        var rand = mulberry32(hashSeed(weekKey+"|swap|"+dayIdx+"|"+mealIdx+"|"+Date.now()));
+        plan.days[dayIdx][mealIdx] = candidates[Math.floor(rand()*candidates.length)].id;
+      } else {
+        /* whole pool already on the week: trade with another day instead */
+        var others = [];
+        plan.days.forEach(function(day, d){ if (d !== dayIdx && day[mealIdx] && day[mealIdx] !== current) others.push(d); });
+        if (!others.length) return;
+        var od = others[Math.floor(Math.random()*others.length)];
+        plan.days[dayIdx][mealIdx] = plan.days[od][mealIdx];
+        plan.days[od][mealIdx] = current;
+      }
+      saveJSON(LS.plans, plans);
+    }
+    function shuffleDay(weekKey, dayIdx){
+      for (var mi=0; mi<MEALS.length; mi++) swapMeal(weekKey, dayIdx, mi);
+    }
+
+    /* ---------- toast ---------- */
+    var toastTimer = null;
+    function toast(msg){
+      var t = $("#toast"); t.textContent = msg; t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
+    }
+
+    /* ---------- navigation ---------- */
+    var currentView = "plan";
+    function showView(name){
+      currentView = name;
+      $$(".view").forEach(function(v){ v.classList.toggle("active", v.id === "view-"+name); });
+      $$("nav.tabbar button").forEach(function(b){
+        if (b.getAttribute("data-view") === name) b.setAttribute("aria-current","page");
+        else b.removeAttribute("aria-current");
+      });
+      $("#headFavs").setAttribute("aria-pressed", name === "favorites" ? "true" : "false");
+      if (name === "plan") renderPlan();
+      if (name === "recipes") renderRecipes();
+      if (name === "grocery") renderGrocery();
+      if (name === "favorites") renderFavorites();
+      window.scrollTo({top:0});
+    }
+    $$("nav.tabbar button").forEach(function(b){
+      b.addEventListener("click", function(){ showView(b.getAttribute("data-view")); });
+    });
+    $("#headFavs").addEventListener("click", function(){ showView("favorites"); });
+    $("#goGrocery").addEventListener("click", function(){ showView("grocery"); });
+
+    /* ---------- plan rendering ---------- */
+    function heartBtn(id, extraClass){
+      var f = isFav(id);
+      return '<button type="button" class="icon-btn heart-inline '+(f?"faved":"")+' '+(extraClass||"")+'" data-fav="'+id+'" aria-label="'+(f?"Remove from favorites":"Save to favorites")+'" aria-pressed="'+f+'">'+(f?"♥":"♡")+'</button>';
+    }
+    function renderPlan(){
+      var monday = currentMonday();
+      var key = weekKeyOf(monday);
+      var sunday = new Date(monday); sunday.setDate(sunday.getDate()+6);
+      $("#weekLabel").textContent = fmtDate(monday) + " – " + fmtDate(sunday);
+      var plan = getPlan(key);
+      var todayIdx = -1;
+      var now = new Date();
+      if (weekOffset === 0) todayIdx = (now.getDay() + 6) % 7;
+      var totalCarbs = 0, mealCount = 0;
+      var html = "";
+      plan.days.forEach(function(day, d){
+        var date = new Date(monday); date.setDate(date.getDate()+d);
+        html += '<article class="day-card"><div class="day-head"><span><span class="dname">'+DAY_NAMES[d]+'</span> <span class="ddate">'+fmtDate(date)+'</span></span>'
+          + (d === todayIdx ? '<span class="today-flag">TODAY</span>' : '')
+          + '<button type="button" class="swap-btn" data-shuffle="'+d+'">⟳ Shuffle day</button></div>';
+        MEALS.forEach(function(m, mi){
+          var rid = day[mi];
+          if (m.key === "snack" && !rid){
+            html += '<div class="meal-row"><span class="meal-kind">Snack</span><button type="button" class="add-snack" data-addsnack="'+d+'">+ Add a snack</button></div>';
+            return;
+          }
+          var r = byId(rid); if (!r) return;
+          totalCarbs += r.carbs; mealCount++;
+          html += '<div class="meal-row"><span class="meal-kind">'+m.label+'</span>'
+            + '<button type="button" class="meal-main" data-open="'+r.id+'"><span class="mtitle">'+esc(r.title)+'</span><span class="mcarbs">'+carbBadge(r)+'</span></button>'
+            + '<span class="meal-actions">'
+            + (m.key === "snack" ? '<button type="button" class="icon-btn" data-removesnack="'+d+'" aria-label="Remove snack">×</button>' : '')
+            + '<button type="button" class="swap-btn" data-swap="'+d+':'+mi+'">Swap</button>'
+            + heartBtn(r.id)
+            + '</span></div>';
+        });
+        html += '</article>';
+      });
+      $("#planDays").innerHTML = html;
+      $("#planCarbs").textContent = mealCount
+        ? "This week at a glance: " + mealCount + " meals planned · about " + Math.round(totalCarbs/7) + "g of carbs per day across the planned meals (recipe estimates)."
+        : "";
+    }
+    $("#planDays").addEventListener("click", function(e){
+      var t = e.target.closest("[data-open],[data-swap],[data-shuffle],[data-fav],[data-addsnack],[data-removesnack]");
+      if (!t) return;
+      var monday = currentMonday(), key = weekKeyOf(monday);
+      if (t.hasAttribute("data-open")) openRecipe(t.getAttribute("data-open"));
+      else if (t.hasAttribute("data-fav")){ var on = toggleFav(t.getAttribute("data-fav")); toast(on ? "Saved to favorites" : "Removed from favorites"); renderPlan(); }
+      else if (t.hasAttribute("data-swap")){
+        var parts = t.getAttribute("data-swap").split(":");
+        swapMeal(key, +parts[0], +parts[1]); renderPlan(); renderGrocerySoon();
+        toast("Meal swapped — grocery list updated");
+      }
+      else if (t.hasAttribute("data-shuffle")){
+        shuffleDay(key, +t.getAttribute("data-shuffle")); renderPlan(); renderGrocerySoon();
+        toast("Day shuffled — grocery list updated");
+      }
+      else if (t.hasAttribute("data-addsnack")){
+        var d = +t.getAttribute("data-addsnack");
+        var plan = getPlan(key);
+        var used = usedInWeek(plan.days, 3, d);
+        var cands = pool("snack").filter(function(r){ return !used[r.id]; });
+        if (cands.length){ plan.days[d][3] = cands[0].id; saveJSON(LS.plans, plans); }
+        else toast("Every snack recipe is already in this week's plan");
+        renderPlan(); renderGrocerySoon();
+      }
+      else if (t.hasAttribute("data-removesnack")){
+        var d2 = +t.getAttribute("data-removesnack");
+        var plan2 = getPlan(key);
+        plan2.days[d2][3] = null; saveJSON(LS.plans, plans);
+        renderPlan(); renderGrocerySoon();
+      }
+    });
+    function renderGrocerySoon(){ if (currentView === "grocery") renderGrocery(); }
+    $("#regenPlan").addEventListener("click", function(){
+      var key = weekKeyOf(currentMonday());
+      var plan = getPlan(key);
+      plan.version += 1;
+      plan.days = generatePlan(key, plan.version);
+      saveJSON(LS.plans, plans);
+      renderPlan();
+      toast("Fresh plan generated for this week");
+    });
+    $("#prevWeek").addEventListener("click", function(){ weekOffset -= 1; renderPlan(); });
+    $("#nextWeek").addEventListener("click", function(){ weekOffset += 1; renderPlan(); });
+
+    /* ---------- recipe cards / lists ---------- */
+    var MEAL_LABELS = { breakfast:"Breakfast", lunch:"Lunch", dinner:"Dinner", snack:"Snacks & Desserts", dessert:"Dessert" };
+    function cardHTML(r){
+      var f = isFav(r.id);
+      return '<article class="rcard">'
+        + '<button type="button" class="heart '+(f?"faved":"")+'" data-fav="'+r.id+'" aria-label="'+(f?"Remove "+esc(r.title)+" from favorites":"Save "+esc(r.title)+" to favorites")+'" aria-pressed="'+f+'">'+(f?"♥":"♡")+'</button>'
+        + '<h3>'+esc(r.title)+'</h3>'
+        + '<p class="desc">'+esc(r.desc)+'</p>'
+        + '<div class="meta"><span>'+MEAL_LABELS[r.meal]+'</span><span>Prep '+esc(r.prep)+'</span><span>Cook '+esc(r.cook)+'</span><span>'+esc(r.serves)+'</span></div>'
+        + '<span class="carbs-pill">'+carbBadge(r)+' / serving</span>'
+        + '<button type="button" class="btn ghost small" data-open="'+r.id+'" style="align-self:flex-start;margin-top:6px">Open recipe →</button>'
+        + '</article>';
+    }
+    var activeCat = "all", searchText = "";
+    function renderCatChips(){
+      var cats = [["all","All"],["breakfast","Breakfast"],["lunch","Lunch"],["dinner","Dinner"],["snack","Snacks & Desserts"],["dessert","Desserts"],["favorites","♥ Favorites"]];
+      $("#catChips").innerHTML = cats.map(function(c){
+        return '<button type="button" class="chip" data-cat="'+c[0]+'" aria-pressed="'+(activeCat===c[0])+'">'+c[1]+'</button>';
+      }).join("");
+    }
+    function renderRecipes(){
+      renderCatChips();
+      var list = RECIPES.filter(function(r){
+        if (activeCat === "favorites" && !isFav(r.id)) return false;
+        if (activeCat === "snack" && r.meal !== "snack" && r.meal !== "dessert") return false;
+        if (activeCat !== "all" && activeCat !== "favorites" && activeCat !== "snack" && r.meal !== activeCat) return false;
+        if (searchText && (r.title+" "+r.desc).toLowerCase().indexOf(searchText) < 0) return false;
+        return true;
+      });
+      $("#recipeGrid").innerHTML = list.map(cardHTML).join("");
+      $("#recipeEmpty").hidden = list.length > 0;
+      $("#recipeCount").textContent = list.length + " of " + RECIPES.length + " recipes";
+    }
+    $("#catChips").addEventListener("click", function(e){
+      var t = e.target.closest("[data-cat]"); if (!t) return;
+      activeCat = t.getAttribute("data-cat"); renderRecipes();
+    });
+    $("#recipeSearch").addEventListener("input", function(e){
+      searchText = e.target.value.trim().toLowerCase(); renderRecipes();
+    });
+    function gridClick(e){
+      var f = e.target.closest("[data-fav]");
+      if (f){ var on = toggleFav(f.getAttribute("data-fav")); toast(on ? "Saved to favorites" : "Removed from favorites");
+        if (currentView === "recipes") renderRecipes();
+        if (currentView === "favorites") renderFavorites();
+        return; }
+      var o = e.target.closest("[data-open]");
+      if (o) openRecipe(o.getAttribute("data-open"));
+    }
+    $("#recipeGrid").addEventListener("click", gridClick);
+    $("#favGrid").addEventListener("click", gridClick);
+    function renderFavorites(){
+      var list = RECIPES.filter(function(r){ return isFav(r.id); });
+      $("#favGrid").innerHTML = list.map(cardHTML).join("");
+      $("#favEmpty").hidden = list.length > 0;
+      $("#favCount").textContent = list.length ? list.length + (list.length === 1 ? " recipe" : " recipes") : "";
+    }
+
+    /* ---------- grocery list ----------
+       Ingredient strings are parsed into qty / unit / name; identical
+       name+unit lines are summed, and each line remembers which planned
+       meals use it. */
+    var AISLES = ["Produce","Protein","Dairy & Fridge","Pantry"];
+    var AISLE_WORDS = {
+      "Protein": ["steak","salmon","chicken","beef","turkey","pork","shrimp","tuna","sausage","tofu","ground chicken","ground turkey","flank","chuck","tenderloin","thighs","sea bass","snapper","white fish","duck","lamb","halloumi","paneer"],
+      "Dairy & Fridge": ["egg","butter","feta","parmesan","cream cheese","greek yogurt","yogurt","cottage cheese","heavy cream","whipping cream","cheddar","cheese","almond milk","ghee","coconut milk","labneh","queso fresco"],
+      "Produce": ["pepper","zucchini","onion","spinach","tomato","tomatillo","cucumber","lemon","lime","avocado","berries","raspberries","broccoli","carrot","celery","mushroom","green bean","cauliflower","greens","mixed green","lettuce","parsley","cilantro","basil","chives","dill","garlic","ginger","sweet potato","brussels sprout","asparagus","water chestnut","green onion","jicama","lemongrass","galangal","fennel","eggplant","artichoke","radish","scallion","mint","thyme","jalapeño","chili","serrano"]
+    };
+    function aisleFor(name){
+      var n = " " + name.toLowerCase() + " ";
+      if (n.indexOf("black pepper") >= 0 || n.indexOf("salt and pepper") >= 0) return "Pantry";
+      var order = ["Protein","Dairy & Fridge","Produce"];
+      for (var i=0;i<order.length;i++){
+        var words = AISLE_WORDS[order[i]];
+        for (var j=0;j<words.length;j++) if (n.indexOf(words[j]) >= 0) return order[i];
+      }
+      return "Pantry";
+    }
+    function parseQty(s){
+      s = s.trim();
+      var m = s.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+      if (m) return +m[1] + (+m[2])/(+m[3]);
+      m = s.match(/^(\d+)\/(\d+)$/);
+      if (m) return (+m[1])/(+m[2]);
+      m = s.match(/^\d+(\.\d+)?$/);
+      if (m) return parseFloat(s);
+      return null;
+    }
+    function parseIngredient(str){
+      var s = str.replace(/\([^)]*\)/g, "").trim();
+      s = s.replace(/^½\s*/, "1/2 ").replace(/^¼\s*/, "1/4 ").replace(/^¾\s*/, "3/4 ").replace(/^⅓\s*/, "1/3 ").replace(/^⅔\s*/, "2/3 ");
+      var rest = s, qty = null;
+      var m = s.match(/^(\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:\.\d+)?)\s+(.*)$/);
+      if (m){ qty = parseQty(m[1]); rest = m[2]; }
+      var unit = "";
+      var um = rest.match(/^(lbs?|oz|cups?|tbsp|tablespoons?|tsp|teaspoons?|cloves?|cans?|stalks?|heads?|bunch(?:es)?|bulbs?|jars?)\s+(.*)$/i);
+      if (um){ unit = um[1].toLowerCase().replace(/s$/,""); if (unit === "tablespoon") unit = "tbsp"; if (unit === "teaspoon") unit = "tsp"; if (unit === "lb") unit = "lb"; rest = um[2]; }
+      var name = rest.split(",")[0].trim().toLowerCase();
+      name = name.replace(/^(large|medium|small|fresh|ripe|boneless|firm)\s+/, "");
+      name = name.replace(/^(a pinch of|pinch of|a few drops of)\s+/, "");
+      if (name === "egg") name = "eggs";
+      /* light singular normalization so "bell peppers" and "bell pepper" merge */
+      if (/ies$/.test(name)) name = name.replace(/ies$/, "y");
+      else if (/oes$/.test(name)) name = name.replace(/oes$/, "o");
+      else if (/(ches|shes|xes|zes)$/.test(name)) name = name.replace(/es$/, "");
+      else if (/s$/.test(name) && !/ss$/.test(name)) name = name.replace(/s$/, "");
+      if (/ leave$/.test(name)) name = name.replace(/ leave$/, " leaves");
+      return { qty: qty, unit: unit, name: name, raw: str };
+    }
+    function fmtQty(q){
+      if (q === null || q === undefined) return "";
+      var whole = Math.floor(q + 1e-9), frac = q - whole;
+      var fr = "";
+      if (frac > 0.87) { whole += 1; }
+      else if (frac > 0.62) fr = "3/4";
+      else if (frac > 0.4) fr = "1/2";
+      else if (frac > 0.2) fr = "1/4";
+      else if (frac > 0.03) fr = "1/4";
+      var out = (whole ? String(whole) : "") + (fr ? (whole ? " " : "") + fr : "");
+      return out || "1";
+    }
+    function buildGrocery(weekKey){
+      var plan = getPlan(weekKey);
+      var map = {}, order = [];
+      plan.days.forEach(function(day){
+        day.forEach(function(rid){
+          if (!rid) return;
+          var r = byId(rid); if (!r) return;
+          r.ingredients.forEach(function(ing){
+            var p = parseIngredient(ing);
+            var key = p.name + "|" + p.unit;
+            if (!map[key]){
+              map[key] = { name: p.name, unit: p.unit, qty: p.qty, meals: {}, aisle: aisleFor(p.name) };
+              order.push(key);
+            }
+            var line = map[key];
+            if (p.qty !== null && line.qty !== null) line.qty += p.qty;
+            else if (p.qty !== null && line.qty === null) line.qty = p.qty;
+            line.meals[r.title] = true;
+          });
+        });
+      });
+      var grouped = {};
+      AISLES.forEach(function(a){ grouped[a] = []; });
+      order.forEach(function(k){ grouped[map[k].aisle].push({ key: k, line: map[k] }); });
+      AISLES.forEach(function(a){ grouped[a].sort(function(x,y){ return x.line.name < y.line.name ? -1 : 1; }); });
+      return grouped;
+    }
+    function lineText(line){
+      var qtyStr = fmtQty(line.qty);
+      var unit = line.unit;
+      if (unit && line.qty !== null && line.qty > 1 && ["cup","clove","can","stalk"].indexOf(unit) >= 0) unit += "s";
+      var dispName = line.name === "egg" ? "eggs" : line.name;
+      return ((qtyStr ? qtyStr + " " : "") + (unit ? unit + " " : "") + dispName).trim();
+    }
+    function renderGrocery(){
+      var monday = currentMonday(), key = weekKeyOf(monday);
+      var sunday = new Date(monday); sunday.setDate(sunday.getDate()+6);
+      $("#grocWeekLabel").textContent = "Week of " + fmtDate(monday) + " – " + fmtDate(sunday);
+      var grouped = buildGrocery(key);
+      var checked = grocChecked[key] || [];
+      var total = 0, doneCount = 0, html = "", printHtml = "<h1>Diabetes Friendly Eats — Grocery List</h1><p class='sub'>Week of " + fmtDate(monday) + " – " + fmtDate(sunday) + " · Quantities are for one batch of each planned recipe.</p>";
+      AISLES.forEach(function(a){
+        var items = grouped[a];
+        if (!items.length) return;
+        html += '<div class="aisle"><h3>'+a+'</h3><ul>';
+        printHtml += "<h2>"+a+"</h2><ul>";
+        items.forEach(function(it){
+          total++;
+          var isDone = checked.indexOf(it.key) >= 0;
+          if (isDone) doneCount++;
+          var meals = Object.keys(it.line.meals);
+          var mealNote = meals.length > 1 ? "Used in " + meals.length + " meals" : meals[0];
+          html += '<li class="'+(isDone?"done":"")+'"><label><input type="checkbox" data-groc="'+esc(it.key)+'" '+(isDone?"checked":"")+' />'
+            + '<span class="gitem">'+esc(lineText(it.line))+'<span class="gmeals">'+esc(mealNote)+'</span></span></label></li>';
+          printHtml += "<li>"+esc(lineText(it.line))+" <span class='sub'>("+esc(mealNote)+")</span></li>";
+        });
+        html += "</ul></div>";
+        printHtml += "</ul>";
+      });
+      printHtml += "<p class='sub' style='margin-top:18px'>General information only — not medical advice. Talk to your clinician or a registered dietitian about your own eating plan.</p>";
+      $("#grocList").innerHTML = html;
+      $("#printSheet").innerHTML = printHtml;
+      $("#grocEmpty").hidden = total > 0;
+      $("#grocCount").textContent = total ? doneCount + " of " + total + " items checked off" : "";
+    }
+    $("#grocList").addEventListener("change", function(e){
+      var cb = e.target.closest("[data-groc]"); if (!cb) return;
+      var key = weekKeyOf(currentMonday());
+      var arr = grocChecked[key] || (grocChecked[key] = []);
+      var k = cb.getAttribute("data-groc");
+      var i = arr.indexOf(k);
+      if (cb.checked && i < 0) arr.push(k);
+      if (!cb.checked && i >= 0) arr.splice(i,1);
+      saveJSON(LS.groc, grocChecked);
+      var li = cb.closest("li"); if (li) li.classList.toggle("done", cb.checked);
+      var grouped = buildGrocery(key);
+      var total = 0; AISLES.forEach(function(a){ total += grouped[a].length; });
+      $("#grocCount").textContent = arr.length + " of " + total + " items checked off";
+    });
+    $("#clearChecked").addEventListener("click", function(){
+      var key = weekKeyOf(currentMonday());
+      var arr = grocChecked[key] || [];
+      if (!arr.length){ toast("Nothing checked yet"); return; }
+      /* "Clear" removes the checked lines from this week's working list view
+         by moving them into a cleared set stored alongside. */
+      var cleared = loadJSON("dfe.grocCleared.v1", {});
+      cleared[key] = (cleared[key] || []).concat(arr);
+      saveJSON("dfe.grocCleared.v1", cleared);
+      grocChecked[key] = [];
+      saveJSON(LS.groc, grocChecked);
+      applyCleared(key, cleared[key]);
+      renderGrocery();
+      toast("Checked items cleared");
+    });
+    $("#uncheckAll").addEventListener("click", function(){
+      var key = weekKeyOf(currentMonday());
+      grocChecked[key] = [];
+      saveJSON(LS.groc, grocChecked);
+      var cleared = loadJSON("dfe.grocCleared.v1", {});
+      if (cleared[key]){ delete cleared[key]; saveJSON("dfe.grocCleared.v1", cleared); }
+      renderGrocery();
+    });
+    /* Cleared items: keep them out of the rendered list until "Uncheck all" restores. */
+    var clearedSet = {};
+    function applyCleared(key, keys){
+      clearedSet[key] = {};
+      (keys||[]).forEach(function(k){ clearedSet[key][k] = true; });
+    }
+    (function initCleared(){
+      var cleared = loadJSON("dfe.grocCleared.v1", {});
+      Object.keys(cleared).forEach(function(k){ applyCleared(k, cleared[k]); });
+    })();
+    var _buildGrocery = buildGrocery;
+    buildGrocery = function(weekKey){
+      var g = _buildGrocery(weekKey);
+      var cs = clearedSet[weekKey];
+      if (cs) AISLES.forEach(function(a){ g[a] = g[a].filter(function(it){ return !cs[it.key]; }); });
+      return g;
+    };
+    $("#printList").addEventListener("click", function(){
+      renderGrocery();
+      $("#printOverlay").hidden = false;
+      document.body.style.overflow = "hidden";
+      $("#closePrint").focus();
+    });
+    $("#closePrint").addEventListener("click", function(){
+      $("#printOverlay").hidden = true;
+      document.body.style.overflow = "";
+    });
+
+    /* ---------- recipe detail ---------- */
+    var lastFocus = null;
+    function openRecipe(id){
+      var r = byId(id); if (!r) return;
+      lastFocus = document.activeElement;
+      var f = isFav(id);
+      $("#sheet").innerHTML =
+        '<div class="sheet-top"><h2 id="sheetTitle">'+esc(r.title)+'</h2>'
+        + '<button type="button" class="heart '+(f?"faved":"")+'" data-fav="'+r.id+'" style="position:static" aria-label="Toggle favorite" aria-pressed="'+f+'">'+(f?"♥":"♡")+'</button>'
+        + '<button type="button" class="close-btn" id="sheetClose" aria-label="Close recipe">✕</button></div>'
+        + '<p class="desc">'+esc(r.desc)+'</p>'
+        + '<div class="meta"><span>'+MEAL_LABELS[r.meal]+'</span><span>Prep '+esc(r.prep)+'</span><span>Cook '+esc(r.cook)+'</span><span>'+esc(r.serves)+'</span></div>'
+        + '<div class="carbs-hero"><span class="num">'+r.carbs+'g</span><span class="lbl">'+(r.netCarbs ? "net carbs" : "carbs")+' per serving<br/>'+r.nutrition.cal+' calories (estimate)</span></div>'
+        + '<h3>Ingredients</h3><ul class="ing">'+r.ingredients.map(function(i){ return "<li>"+esc(i)+"</li>"; }).join("")+'</ul>'
+        + '<h3>Steps</h3><ol class="steps">'+r.steps.map(function(s){ return "<li>"+esc(s)+"</li>"; }).join("")+'</ol>'
+        + '<h3>Nutrition</h3><table class="nut-table">'
+        + '<tr><td>Calories</td><td>'+r.nutrition.cal+'</td></tr>'
+        + '<tr><td>'+carbRowLabel(r)+'</td><td>'+r.nutrition.carbs+'g</td></tr>'
+        + '<tr><td>Protein</td><td>'+r.nutrition.protein+'g</td></tr>'
+        + '<tr><td>Fat</td><td>'+r.nutrition.fat+'g</td></tr>'
+        + '<tr><td>Fiber</td><td>'+r.nutrition.fiber+'g</td></tr></table>'
+        + '<p class="nut-note">Nutrition per serving (estimate).</p>'
+        + '<p class="disclaimer"><strong>General information only — not medical advice.</strong> Talk to your clinician or a registered dietitian about your own eating plan.</p>';
+      $("#overlay").classList.add("open");
+      document.body.style.overflow = "hidden";
+      $("#sheetClose").addEventListener("click", closeRecipe);
+      var sheetFav = $('#sheet [data-fav]');
+      sheetFav.addEventListener("click", function(){
+        var on = toggleFav(r.id);
+        sheetFav.textContent = on ? "♥" : "♡";
+        sheetFav.classList.toggle("faved", on);
+        sheetFav.setAttribute("aria-pressed", on);
+        toast(on ? "Saved to favorites" : "Removed from favorites");
+        if (currentView === "plan") renderPlan();
+        if (currentView === "recipes") renderRecipes();
+        if (currentView === "favorites") renderFavorites();
+      });
+      $("#sheetClose").focus();
+    }
+    function closeRecipe(){
+      $("#overlay").classList.remove("open");
+      document.body.style.overflow = "";
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    $("#overlay").addEventListener("click", function(e){ if (e.target === this) closeRecipe(); });
+    document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeRecipe(); });
+
+    /* ---------- shop ---------- */
+    $("#shopGrid").innerHTML = SHOP.map(function(p){
+      return '<a class="shop-card" href="https://www.amazon.com/dp/'+p.asin+'?tag=cayspruce-20" target="_blank" rel="noopener sponsored">'
+        + '<h3>'+esc(p.name)+'</h3><p>'+esc(p.line)+'</p><span class="go">View on Amazon →</span></a>';
+    }).join("");
+
+    /* ---------- light / dark theme toggle ----------
+       The head script restores the saved choice before first paint;
+       this keeps the button's icon and label in step and saves changes. */
+    var themeToggle = $("#themeToggle");
+    function applyTheme(t){
+      var dark = t === "dark";
+      if (dark) document.documentElement.setAttribute("data-theme", "dark");
+      else document.documentElement.removeAttribute("data-theme");
+      document.documentElement.style.colorScheme = dark ? "dark" : "light";
+      themeToggle.querySelector(".theme-ic").textContent = dark ? "☀" : "☾";
+      themeToggle.setAttribute("aria-pressed", dark ? "true" : "false");
+      themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+    }
+    themeToggle.addEventListener("click", function(){
+      var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      try { localStorage.setItem("dfe.theme.v1", next); } catch(e){}
+      applyTheme(next);
+      toast(next === "dark" ? "Dark mode on" : "Light mode on");
+    });
+    applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light");
+
+    /* ---------- init ---------- */
+    renderPlan();
+    </script>
+  </body>
+</html>
